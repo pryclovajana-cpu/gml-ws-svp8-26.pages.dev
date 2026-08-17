@@ -219,11 +219,11 @@ export const LivePollingSlide: React.FC<LivePollingSlideProps> = ({
                 {isComparisonSlide && showComparison && statsPoll1.hasData && (
                   <g opacity="0.45">
                     <path
-                      d={`M 1,100 ${statsPoll1.points.map((p) => `L ${p.x},${100 - p.y * 70}`).join(' ')} L 100,100 Z`}
+                      d={`M 0,100 ${statsPoll1.points.map((p) => `L ${p.x},${(100 - p.y * 0.70).toFixed(1)}`).join(' ')} L 100,100 Z`}
                       fill="#cbd5e1"
                     />
                     <path
-                      d={`M 1,100 ${statsPoll1.points.map((p) => `L ${p.x},${100 - p.y * 70}`).join(' ')}`}
+                      d={`M 0,100 ${statsPoll1.points.map((p) => `L ${p.x},${(100 - p.y * 0.70).toFixed(1)}`).join(' ')}`}
                       fill="none"
                       stroke="#64748b"
                       strokeWidth="1.5"
@@ -234,19 +234,30 @@ export const LivePollingSlide: React.FC<LivePollingSlideProps> = ({
 
                 {/* Current Poll Gaussian Area */}
                 <path
-                  d={`M 1,100 ${stats.points.map((p) => `L ${p.x},${100 - p.y * 75}`).join(' ')} L 100,100 Z`}
+                  d={`M 0,100 ${stats.points.map((p) => `L ${p.x},${(100 - p.y * 0.75).toFixed(1)}`).join(' ')} L 100,100 Z`}
                   fill="url(#gaussianGradient)"
-                  opacity="0.75"
+                  opacity="0.8"
                 />
 
                 {/* Current Gaussian Outline */}
                 <path
-                  d={`M 1,100 ${stats.points.map((p) => `L ${p.x},${100 - p.y * 75}`).join(' ')}`}
+                  d={`M 0,100 ${stats.points.map((p) => `L ${p.x},${(100 - p.y * 0.75).toFixed(1)}`).join(' ')}`}
                   fill="none"
                   stroke="#16a34a"
                   strokeWidth="2.5"
                   strokeLinecap="round"
                 />
+
+                {/* Individual Vote Dots on the baseline */}
+                {pollState.scaleResponses.map((resp, rIdx) => (
+                  <circle
+                    key={resp.id || rIdx}
+                    cx={resp.value}
+                    cy={94}
+                    r={2.5}
+                    className="fill-gml-green-700 stroke-white stroke-1 opacity-90 animate-pulse"
+                  />
+                ))}
 
                 {/* Mean vertical indicator line */}
                 <line
