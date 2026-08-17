@@ -143,7 +143,7 @@ export const AdminEditProvider: React.FC<{ children: React.ReactNode }> = ({ chi
                   <input
                     type="password"
                     autoFocus
-                    placeholder="Heslo (admin)"
+                    placeholder="Heslo..."
                     value={passwordInput}
                     onChange={(e) => {
                       setPasswordInput(e.target.value);
