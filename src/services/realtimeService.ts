@@ -278,13 +278,14 @@ class RealtimeService {
   }
 
   public calculateGaussian(values: number[]): {
+    hasData: boolean;
     mean: number;
     stdDev: number;
     points: { x: number; y: number }[];
     count: number;
   } {
     if (values.length === 0) {
-      return { mean: 50, stdDev: 15, points: [], count: 0 };
+      return { hasData: false, mean: 50, stdDev: 15, points: [], count: 0 };
     }
 
     const count = values.length;
@@ -314,6 +315,7 @@ class RealtimeService {
     }));
 
     return {
+      hasData: true,
       mean: Math.round(mean * 10) / 10,
       stdDev: Math.round(stdDev * 10) / 10,
       points: normalizedPoints,
