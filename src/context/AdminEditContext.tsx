@@ -219,6 +219,16 @@ export const EditableText: React.FC<{
 }> = ({ id, defaultText, className = '', as: Component = 'span' }) => {
   const { isAdminMode, getEditableText, updateEditableText } = useAdminEdit();
   const currentText = getEditableText(id, defaultText);
+  const elRef = React.useRef<HTMLElement | null>(null);
+  const isFocusedRef = React.useRef(false);
+
+  React.useEffect(() => {
+    if (elRef.current && !isFocusedRef.current) {
+      if (elRef.current.innerText !== currentText) {
+        elRef.current.innerText = currentText;
+      }
+    }
+  }, [currentText, isAdminMode]);
 
   if (!isAdminMode) {
     return <Component className={className}>{currentText}</Component>;
@@ -226,6 +236,7 @@ export const EditableText: React.FC<{
 
   return (
     <Component
+      ref={elRef}
       contentEditable="true"
       suppressContentEditableWarning
       tabIndex={0}
@@ -236,17 +247,22 @@ export const EditableText: React.FC<{
       onKeyDown={(e: React.KeyboardEvent) => {
         e.stopPropagation();
       }}
+      onFocus={() => {
+        isFocusedRef.current = true;
+      }}
       onInput={(e: React.FormEvent<HTMLElement>) => {
         const newText = e.currentTarget.innerText;
         updateEditableText(id, newText);
       }}
       onBlur={(e: React.FocusEvent<HTMLElement>) => {
+        isFocusedRef.current = false;
         const newText = e.currentTarget.innerText.trim();
         if (newText) {
           updateEditableText(id, newText);
         }
       }}
-      dangerouslySetInnerHTML={{ __html: currentText }}
-    />
+    >
+      {currentText}
+    </Component>
   );
 };
