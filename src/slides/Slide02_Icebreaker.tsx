@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Users, Eye, Check } from 'lucide-react';
+import React, { useState } from 'react';
+import { Eye, Check } from 'lucide-react';
 import { EditableText } from '../context/AdminEditContext';
 
 export const Slide02_Icebreaker: React.FC = () => {
@@ -53,7 +53,7 @@ export const Slide02_Icebreaker: React.FC = () => {
         </div>
       </div>
 
-      {/* Grid of items revealing sequentially - Expansive widescreen layout */}
+      {/* Grid of items revealing sequentially */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 md:gap-7 my-auto py-6">
         {items.map((item, idx) => {
           const isRevealed = idx < visibleCount;
@@ -90,11 +90,6 @@ export const Slide02_Icebreaker: React.FC = () => {
             </div>
           );
         })}
-      </div>
-
-      {/* Bottom Takeaway */}
-      <div className="p-4 bg-gray-50 border border-gray-200 rounded-2xl text-center text-xs sm:text-sm font-semibold text-gml-slate-800">
-        Přihlaste se zvednutím ruky. Kliknutím na kartu odkryjete další předmětovou skupinu.
       </div>
     </div>
   );
