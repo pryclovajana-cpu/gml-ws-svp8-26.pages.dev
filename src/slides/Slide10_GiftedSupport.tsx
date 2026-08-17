@@ -29,7 +29,7 @@ export const Slide10_GiftedSupport: React.FC = () => {
       {/* Top Header */}
       <div className="space-y-1 border-b border-gray-100 pb-3 sm:pb-4">
         <span className="text-xs font-bold uppercase tracking-widest text-gml-green-700 block">
-          Podpora nadání v ŠVP
+          <EditableText id="s10_badge" defaultText="Podpora nadání v ŠVP" />
         </span>
         <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold font-display text-gml-slate-900">
           <EditableText id="s10_title" defaultText="Checklist pro sborovnu: Co si můžeme dovolit a chtít?" />
@@ -41,7 +41,8 @@ export const Slide10_GiftedSupport: React.FC = () => {
         {/* Left Column: Interactive Checklist */}
         <div className="md:col-span-7 bg-white p-4 sm:p-6 rounded-3xl border border-gml-green-200 shadow-sm space-y-3 sm:space-y-4">
           <h3 className="text-base sm:text-lg font-bold font-display text-gml-slate-900 flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-gml-green-600 shrink-0" /> Standardy pro výuku na GML 8G
+            <Sparkles className="w-5 h-5 text-gml-green-600 shrink-0" />
+            <EditableText id="s10_checklist_heading" defaultText="Standardy pro výuku na GML 8G" />
           </h3>
 
           <div className="space-y-2 sm:space-y-3">
@@ -50,7 +51,13 @@ export const Slide10_GiftedSupport: React.FC = () => {
               return (
                 <div
                   key={item.id}
-                  onClick={() => toggleCheck(item.id)}
+                  onClick={(e) => {
+                    const target = e.target as HTMLElement;
+                    if (target.isContentEditable || target.closest('[contenteditable="true"]')) {
+                      return;
+                    }
+                    toggleCheck(item.id);
+                  }}
                   className={`p-3 sm:p-3.5 rounded-2xl border transition-all cursor-pointer flex items-center gap-3 ${
                     isChecked
                       ? 'bg-gml-green-50/80 border-gml-green-300 text-gml-slate-900'
@@ -75,13 +82,16 @@ export const Slide10_GiftedSupport: React.FC = () => {
         <div className="md:col-span-5 bg-gradient-to-br from-gml-yellow-100/60 via-gml-yellow-50 to-white p-4 sm:p-6 rounded-3xl border border-gml-yellow-300 shadow-sm flex flex-col justify-between space-y-4">
           <div className="space-y-2">
             <span className="px-3 py-1 bg-gml-yellow-300 text-gml-slate-900 text-[10px] font-extrabold rounded-full uppercase tracking-wider inline-block">
-              Inspirace z praxe
+              <EditableText id="s10_practice_badge" defaultText="Inspirace z praxe" />
             </span>
             <h3 className="text-lg sm:text-xl font-bold font-display text-gml-slate-900">
-              ŠVP Gymnázia Český Těšín
+              <EditableText id="s10_practice_title" defaultText="Ukázka dobré praxe" />
             </h3>
             <p className="text-xs sm:text-sm text-gray-600 leading-relaxed font-medium">
-              Ukázka osvědčeného modelu podpory mimořádně nadaných žáků, mezipředmětových bloků a individuálních studijních plánů.
+              <EditableText
+                id="s10_practice_desc"
+                defaultText="Osvědčený model podpory mimořádně nadaných žáků, mezipředmětových bloků a individuálních studijních plánů."
+              />
             </p>
           </div>
 
@@ -100,7 +110,7 @@ export const Slide10_GiftedSupport: React.FC = () => {
           <div className="bg-white max-w-2xl w-full rounded-3xl shadow-2xl border border-gml-green-200 p-5 sm:p-6 space-y-4 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between border-b border-gray-100 pb-3">
               <h3 className="text-lg sm:text-xl font-bold font-display text-gml-slate-900">
-                Příklad dobré praxe: Gymnázium Český Těšín
+                <EditableText id="s10_modal_title" defaultText="Příklad dobré praxe" />
               </h3>
               <button
                 onClick={() => setShowModal(false)}
