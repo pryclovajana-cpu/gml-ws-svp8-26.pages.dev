@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
-import { RefreshCw, Users, TrendingUp, MessageSquare, ExternalLink, Award } from 'lucide-react';
-import { PollState } from '../../types';
+import { MessageSquare, Users, TrendingUp, ExternalLink, RefreshCw, Award, Sparkles } from 'lucide-react';
 import { realtimeService } from '../../services/realtimeService';
+import { PollState } from '../../types';
 
 interface LivePollingSlideProps {
   pollId: 'poll1' | 'poll2';
@@ -15,16 +15,15 @@ export const LivePollingSlide: React.FC<LivePollingSlideProps> = ({
   questionText,
   isComparisonSlide = false,
 }) => {
-  const [pollState, setPollState] = useState<PollState>({ textResponses: [], scaleResponses: [] });
-  const [poll1StateForComparison, setPoll1StateForComparison] = useState<PollState>({
-    textResponses: [],
-    scaleResponses: [],
-  });
-  const [showComparison, setShowComparison] = useState<boolean>(isComparisonSlide);
+  const [pollState, setPollState] = useState<PollState>(() => realtimeService.getPollState(pollId));
+  const [poll1StateForComparison, setPoll1StateForComparison] = useState<PollState>(() =>
+    isComparisonSlide ? realtimeService.getPollState('poll1') : { textResponses: [], scaleResponses: [] }
+  );
+  const [showComparison, setShowComparison] = useState<boolean>(true);
 
   useEffect(() => {
-    const unsubscribe = realtimeService.subscribe(pollId, (state) => {
-      setPollState(state);
+    const unsubscribe = realtimeService.subscribe(pollId, (newState) => {
+      setPollState(newState);
     });
 
     let unsubscribePoll1: (() => void) | undefined;
@@ -64,6 +63,19 @@ export const LivePollingSlide: React.FC<LivePollingSlideProps> = ({
     ? 'Výstupní hodnocení důvěry v nový ŠVP (1–100)'
     : 'Jakou důvěru na škále 1–100 máte v to, že nový ŠVP pomůže ke kvalitnějšímu vzdělávání na GML?';
 
+  // Format SVG path string safely
+  const currentPathD = stats.points && stats.points.length > 0
+    ? `M 0,100 ${stats.points.map((p) => `L ${p.x.toFixed(1)},${(100 - (p.y || 0) * 0.75).toFixed(1)}`).join(' ')} L 100,100 Z`
+    : '';
+
+  const currentStrokeD = stats.points && stats.points.length > 0
+    ? `M 0,100 ${stats.points.map((p) => `L ${p.x.toFixed(1)},${(100 - (p.y || 0) * 0.75).toFixed(1)}`).join(' ')}`
+    : '';
+
+  const compPathD = statsPoll1.points && statsPoll1.points.length > 0
+    ? `M 0,100 ${statsPoll1.points.map((p) => `L ${p.x.toFixed(1)},${(100 - (p.y || 0) * 0.70).toFixed(1)}`).join(' ')} L 100,100 Z`
+    : '';
+
   return (
     <div className="w-full h-full flex flex-col justify-between p-3 sm:p-6 md:p-8 space-y-4 select-none bg-white">
       {/* Top Header & Large Prominent Voting QR Code Bar */}
@@ -101,22 +113,26 @@ export const LivePollingSlide: React.FC<LivePollingSlideProps> = ({
         </div>
       </div>
 
-      {/* Main Content Area: Split Grid (Left: Text Responses, Right: Density Curve) */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 flex-1 min-h-0">
-        {/* Left Column: Text Responses Feed */}
+      {/* 2-Column Responsive Layout: Live Feed & Gaussian Curve */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 flex-1 my-auto">
+        {/* Left Column: Real-time Qualitative Feed */}
         <div className="lg:col-span-6 bg-white p-4 sm:p-6 rounded-3xl border border-gml-green-100 shadow-sm flex flex-col justify-between">
-          <div className="flex items-center justify-between mb-3 sm:mb-4">
+          <div className="flex items-center justify-between mb-3 sm:mb-4 border-b border-gray-100 pb-3">
             <div className="flex items-center gap-2">
-              <MessageSquare className="w-4 h-4 sm:w-5 sm:h-5 text-gml-yellow-600 shrink-0" />
-              <h3 className="font-display font-bold text-gml-slate-900 text-sm sm:text-base md:text-lg leading-snug">
+              <MessageSquare className="w-5 h-5 text-gml-green-600" />
+              <h3 className="font-display font-bold text-gml-slate-900 text-sm sm:text-base">
                 {feedTitle}
               </h3>
             </div>
+            <span className="text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-full bg-gml-green-100 text-gml-green-800 animate-pulse">
+              Live přenos
+            </span>
           </div>
 
-          <div className="flex-1 overflow-y-auto pr-1 space-y-2.5 sm:space-y-3 max-h-[300px] sm:max-h-[360px]">
+          {/* Scrolling Feed Container */}
+          <div className="flex-1 overflow-y-auto space-y-2.5 sm:space-y-3 max-h-[220px] sm:max-h-[300px] md:max-h-[340px] pr-1.5">
             {pollState.textResponses.length === 0 ? (
-              <div className="h-full min-h-[140px] flex flex-col items-center justify-center text-center p-6 text-gray-400 border-2 border-dashed border-gray-100 rounded-2xl">
+              <div className="flex flex-col items-center justify-center h-48 text-center p-6 text-gray-400 bg-gray-50/50 rounded-2xl border border-dashed border-gray-200">
                 <MessageSquare className="w-8 h-8 mb-2 opacity-30 text-gml-green-600" />
                 <p className="text-xs sm:text-sm font-semibold text-gray-600">Zatím žádné odpovědi</p>
                 <p className="text-[11px] text-gray-400 mt-0.5">Odpovědi účastníků z mobilů se zde zobrazí živě.</p>
@@ -201,7 +217,7 @@ export const LivePollingSlide: React.FC<LivePollingSlideProps> = ({
           </div>
 
           {/* SVG Gaussian Bell Curve & Histogram */}
-          <div className="relative w-full h-44 sm:h-52 md:h-60 bg-gradient-to-b from-gml-green-50/20 to-white rounded-2xl border border-gray-100 p-2 flex flex-col justify-end">
+          <div className="relative w-full h-44 sm:h-52 md:h-60 bg-gradient-to-b from-gml-green-50/20 via-white to-gray-50 rounded-2xl border border-gray-100 p-2 flex flex-col justify-end overflow-hidden">
             {!stats.hasData ? (
               <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-4 text-gray-400">
                 <TrendingUp className="w-6 h-6 sm:w-8 sm:h-8 mb-1.5 opacity-30 text-gml-green-600" />
@@ -209,53 +225,59 @@ export const LivePollingSlide: React.FC<LivePollingSlideProps> = ({
                 <p className="text-[11px] text-gray-400 mt-0.5">Naskenujte QR kód a zvolte hodnotu na škále 1–100</p>
               </div>
             ) : (
-              <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="w-full h-full">
-                {/* Background grid lines */}
-                <line x1="0" y1="20" x2="100" y2="20" stroke="#f1f5f9" strokeWidth="0.5" />
-                <line x1="0" y1="50" x2="100" y2="50" stroke="#f1f5f9" strokeWidth="0.5" />
-                <line x1="0" y1="80" x2="100" y2="80" stroke="#f1f5f9" strokeWidth="0.5" />
+              <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="w-full h-full overflow-visible">
+                <defs>
+                  <linearGradient id="gaussianGradientFill" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#22c55e" stopOpacity="0.6" />
+                    <stop offset="60%" stopColor="#16a34a" stopOpacity="0.25" />
+                    <stop offset="100%" stopColor="#16a34a" stopOpacity="0.02" />
+                  </linearGradient>
+                </defs>
+
+                {/* Horizontal Guide lines */}
+                <line x1="0" y1="25" x2="100" y2="25" stroke="#e2e8f0" strokeWidth="0.5" strokeDasharray="2,2" />
+                <line x1="0" y1="50" x2="100" y2="50" stroke="#e2e8f0" strokeWidth="0.5" strokeDasharray="2,2" />
+                <line x1="0" y1="75" x2="100" y2="75" stroke="#e2e8f0" strokeWidth="0.5" strokeDasharray="2,2" />
 
                 {/* Comparison curve overlay (if active) */}
-                {isComparisonSlide && showComparison && statsPoll1.hasData && (
+                {isComparisonSlide && showComparison && statsPoll1.hasData && compPathD && (
                   <g opacity="0.45">
+                    <path d={compPathD} fill="#cbd5e1" />
                     <path
-                      d={`M 0,100 ${statsPoll1.points.map((p) => `L ${p.x},${(100 - p.y * 0.70).toFixed(1)}`).join(' ')} L 100,100 Z`}
-                      fill="#cbd5e1"
-                    />
-                    <path
-                      d={`M 0,100 ${statsPoll1.points.map((p) => `L ${p.x},${(100 - p.y * 0.70).toFixed(1)}`).join(' ')}`}
+                      d={`M 0,100 ${statsPoll1.points.map((p) => `L ${p.x.toFixed(1)},${(100 - (p.y || 0) * 0.70).toFixed(1)}`).join(' ')}`}
                       fill="none"
                       stroke="#64748b"
-                      strokeWidth="1.5"
+                      strokeWidth="2"
                       strokeDasharray="2,2"
                     />
                   </g>
                 )}
 
-                {/* Current Poll Gaussian Area */}
-                <path
-                  d={`M 0,100 ${stats.points.map((p) => `L ${p.x},${(100 - p.y * 0.75).toFixed(1)}`).join(' ')} L 100,100 Z`}
-                  fill="url(#gaussianGradient)"
-                  opacity="0.8"
-                />
+                {/* Current Poll Gaussian Area (Bold Emerald Gradient) */}
+                {currentPathD && (
+                  <path d={currentPathD} fill="url(#gaussianGradientFill)" />
+                )}
 
-                {/* Current Gaussian Outline */}
-                <path
-                  d={`M 0,100 ${stats.points.map((p) => `L ${p.x},${(100 - p.y * 0.75).toFixed(1)}`).join(' ')}`}
-                  fill="none"
-                  stroke="#16a34a"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                />
+                {/* Current Gaussian Solid Curve Outline */}
+                {currentStrokeD && (
+                  <path
+                    d={currentStrokeD}
+                    fill="none"
+                    stroke="#15803d"
+                    strokeWidth="3"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                )}
 
-                {/* Individual Vote Dots on the baseline */}
+                {/* Individual Participant Vote Dots on the baseline */}
                 {pollState.scaleResponses.map((resp, rIdx) => (
                   <circle
                     key={resp.id || rIdx}
                     cx={resp.value}
                     cy={94}
-                    r={2.5}
-                    className="fill-gml-green-700 stroke-white stroke-1 opacity-90 animate-pulse"
+                    r={3}
+                    className="fill-gml-green-600 stroke-white stroke-1 opacity-90 animate-pulse"
                   />
                 ))}
 
@@ -264,30 +286,32 @@ export const LivePollingSlide: React.FC<LivePollingSlideProps> = ({
                   x1={stats.mean}
                   y1="10"
                   x2={stats.mean}
-                  y2="100"
-                  stroke="#eab308"
+                  y2="98"
+                  stroke="#d97706"
                   strokeWidth="2"
                   strokeDasharray="3,3"
                 />
 
-                <defs>
-                  <linearGradient id="gaussianGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#22c55e" stopOpacity="0.5" />
-                    <stop offset="100%" stopColor="#22c55e" stopOpacity="0.05" />
-                  </linearGradient>
-                </defs>
+                {/* Peak point indicator dot */}
+                <circle
+                  cx={stats.mean}
+                  cy={25}
+                  r={3.5}
+                  className="fill-amber-500 stroke-white stroke-2 shadow-md"
+                />
               </svg>
             )}
 
             {/* X-Axis Scale labels (1 - 100) */}
             <div className="flex justify-between items-center px-1 text-[10px] sm:text-[11px] font-bold text-gray-500 mt-1 sm:mt-2 border-t border-gray-200 pt-1">
-              <span>1</span>
+              <span>1 (Nízká)</span>
               <span>25</span>
-              <span className="text-gml-yellow-700 bg-gml-yellow-100 px-2 py-0.5 rounded-full font-bold">
+              <span className="text-amber-800 bg-amber-100 px-2.5 py-0.5 rounded-full font-extrabold flex items-center gap-1 shadow-2xs">
+                <Sparkles className="w-3 h-3 text-amber-600" />
                 {stats.hasData ? `Průměr: ${stats.mean}` : 'Čeká se'}
               </span>
               <span>75</span>
-              <span>100</span>
+              <span>100 (Vysoká)</span>
             </div>
           </div>
         </div>
