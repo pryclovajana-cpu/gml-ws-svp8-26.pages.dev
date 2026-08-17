@@ -37,7 +37,7 @@ export const Slide08_TargetAudience: React.FC = () => {
       color: 'border-gml-yellow-300 bg-gml-yellow-50/70',
       points: [
         'Smysluplné vzdělávání propojené s reálným světem',
-        'Podpora individuálního nadání a osobního maxima',
+        'Podpora individuálního nadání',
         'Spravedlivá a motivující zpětná vazba',
         'Plynulý přechod mezi nižším a vyšším stupněm',
       ],
