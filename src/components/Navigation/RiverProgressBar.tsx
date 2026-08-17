@@ -1,12 +1,12 @@
-import React from 'react';
-import { ChevronLeft, ChevronRight, Menu, Maximize2, Minimize2, Edit3, Check } from 'lucide-react';
+import React, { useState } from 'react';
+import { ChevronLeft, ChevronRight, Menu, Maximize2, Minimize2, Edit3, Check, Copy, CheckCheck } from 'lucide-react';
 import { useAdminEdit } from '../../context/AdminEditContext';
 
 interface RiverProgressBarProps {
   currentSlide: number;
   totalSlides: number;
-  chapterTitle: string;
-  slideTitle: string;
+  chapterTitle?: string;
+  slideTitle?: string;
   onPrev: () => void;
   onNext: () => void;
   onOpenDrawer: () => void;
@@ -21,58 +21,70 @@ export const RiverProgressBar: React.FC<RiverProgressBarProps> = ({
   onNext,
   onOpenDrawer,
 }) => {
-  const [isFullscreen, setIsFullscreen] = React.useState(false);
-  const { isAdminMode, toggleAdminMode } = useAdminEdit();
+  const { isAdminMode, toggleAdminMode, getAllEditsJson, hasEdits } = useAdminEdit();
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [copied, setCopied] = useState(false);
 
-  const progressPercent = ((currentSlide + 1) / totalSlides) * 100;
-
-  const toggleFullscreen = (e: React.MouseEvent) => {
-    e.stopPropagation();
+  const toggleFullscreen = () => {
     if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen().then(() => setIsFullscreen(true)).catch(() => {});
+      document.documentElement.requestFullscreen().catch(() => {});
+      setIsFullscreen(true);
     } else {
-      document.exitFullscreen().then(() => setIsFullscreen(false)).catch(() => {});
+      if (document.exitFullscreen) {
+        document.exitFullscreen().catch(() => {});
+        setIsFullscreen(false);
+      }
     }
   };
 
+  const copyEdits = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    try {
+      navigator.clipboard.writeText(getAllEditsJson());
+      setCopied(true);
+      setTimeout(() => setCopied(false), 3000);
+    } catch (err) {
+      alert('Zkopírováno: ' + getAllEditsJson());
+    }
+  };
+
+  const progressPercentage = ((currentSlide + 1) / totalSlides) * 100;
+
   return (
-    <footer className="fixed bottom-0 left-0 right-0 z-50 px-2 sm:px-4 py-2 sm:py-3 bg-white/95 backdrop-blur-md border-t border-gml-green-100 shadow-2xl select-none">
-      {/* Top thin flowing river progress bar */}
-      <div className="absolute top-0 left-0 right-0 h-1.5 bg-gray-100 overflow-hidden">
+    <footer className="fixed bottom-0 left-0 right-0 z-30 bg-white/95 backdrop-blur-md border-t border-gray-200/80 shadow-lg select-none transition-all">
+      {/* Top River Progress Fill Line */}
+      <div className="w-full h-1 sm:h-1.5 bg-gray-100 relative overflow-hidden">
         <div
-          className="h-full bg-gradient-to-r from-gml-green-600 via-gml-yellow-500 to-gml-river-500 transition-all duration-500 ease-out"
-          style={{ width: `${progressPercent}%` }}
+          className="h-full river-animated-bg transition-all duration-300 ease-out"
+          style={{ width: `${progressPercentage}%` }}
         />
       </div>
 
-      <div className="max-w-7xl mx-auto flex items-center justify-between gap-2 sm:gap-4">
-        {/* Left: Drawer button & Chapter badge */}
-        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+      <div className="max-w-[1920px] mx-auto px-3 sm:px-6 md:px-8 py-2 sm:py-2.5 flex items-center justify-between gap-2 sm:gap-4">
+        {/* Left: Chapter / Menu Button & Breadcrumb */}
+        <div className="flex items-center gap-2 sm:gap-3 min-w-0">
           <button
             type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              onOpenDrawer();
-            }}
-            className="p-2 sm:p-2.5 rounded-xl bg-gml-green-50 text-gml-green-700 hover:bg-gml-green-100 active:bg-gml-green-200 transition-all cursor-pointer flex items-center gap-1.5 sm:gap-2 font-bold text-xs sm:text-sm shadow-2xs min-h-[38px] sm:min-h-[42px]"
-            title="Přehled slidů / Menu (Klávesa M)"
+            onClick={onOpenDrawer}
+            className="p-2 sm:px-3 sm:py-2 rounded-xl bg-gray-100 hover:bg-gml-green-50 text-gml-slate-800 hover:text-gml-green-800 transition-all font-bold text-xs flex items-center gap-1.5 shrink-0 cursor-pointer min-h-[38px] sm:min-h-[42px]"
+            title="Otevřít přehled všech kapitol (M)"
           >
-            <Menu className="w-4 h-4 sm:w-5 sm:h-5" />
-            <span className="hidden xs:inline sm:inline">Kapitoly</span>
+            <Menu className="w-4 h-4" />
+            <span className="hidden md:inline font-display">Kapitoly</span>
           </button>
 
-          <div className="hidden md:flex flex-col">
-            <span className="text-[10px] font-bold tracking-widest text-gml-green-700 uppercase">
-              {chapterTitle}
+          <div className="hidden sm:flex flex-col text-left min-w-0">
+            <span className="text-[10px] sm:text-xs font-bold text-gml-green-700 uppercase tracking-widest truncate">
+              {chapterTitle || 'ŠVP GML'}
             </span>
-            <span className="text-xs font-semibold text-gml-slate-800 truncate max-w-xs">
-              {slideTitle}
+            <span className="text-xs sm:text-sm font-extrabold text-gml-slate-900 truncate max-w-[200px] md:max-w-[400px] xl:max-w-[600px]">
+              {slideTitle || 'Prezentace'}
             </span>
           </div>
         </div>
 
-        {/* Center: Slide counter & Navigation controls */}
-        <div className="flex items-center gap-1.5 sm:gap-3">
+        {/* Center: Slide Arrows & Number Counter */}
+        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
           <button
             type="button"
             onClick={(e) => {
@@ -80,13 +92,13 @@ export const RiverProgressBar: React.FC<RiverProgressBarProps> = ({
               onPrev();
             }}
             disabled={currentSlide === 0}
-            className="p-2 sm:p-2.5 rounded-xl bg-gray-100 text-gml-slate-800 hover:bg-gml-green-100 hover:text-gml-green-800 active:bg-gml-green-200 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition-all shadow-2xs min-h-[38px] sm:min-h-[42px]"
-            title="Předchozí slide (Klávesa Doleva / Nahoru)"
+            className="p-2 sm:p-2.5 rounded-xl bg-gray-100 hover:bg-gray-200 active:bg-gray-300 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer text-gml-slate-900 transition-all min-h-[38px] sm:min-h-[42px]"
+            title="Předchozí slide (Klávesa Doleva)"
           >
             <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
           </button>
 
-          <div className="px-2.5 sm:px-3 py-1 bg-gml-green-50 border border-gml-green-200 rounded-lg text-xs sm:text-xs font-extrabold text-gml-green-800 tracking-wide font-mono shrink-0">
+          <div className="px-2.5 sm:px-4 py-1.5 sm:py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs sm:text-sm font-mono font-black text-gml-slate-900 min-w-[68px] sm:min-w-[84px] text-center shadow-2xs">
             {currentSlide + 1} / {totalSlides}
           </div>
 
@@ -106,13 +118,29 @@ export const RiverProgressBar: React.FC<RiverProgressBarProps> = ({
 
         {/* Right: Fullscreen & Live edit toggle */}
         <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+          {isAdminMode && hasEdits && (
+            <button
+              type="button"
+              onClick={copyEdits}
+              className={`px-3 py-2 rounded-xl transition-all cursor-pointer flex items-center gap-1.5 text-xs font-bold min-h-[38px] sm:min-h-[42px] shadow-sm ${
+                copied
+                  ? 'bg-gml-green-600 text-white'
+                  : 'bg-amber-100 text-amber-900 border border-amber-300 hover:bg-amber-200'
+              }`}
+              title="Zkopírovat všechny změněné texty do schránky pro trvalý zápis na GitHub"
+            >
+              {copied ? <CheckCheck className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+              <span className="hidden sm:inline">{copied ? 'Zkopírováno!' : 'Kopírovat pro GitHub'}</span>
+            </button>
+          )}
+
           <button
             type="button"
             onClick={(e) => {
               e.stopPropagation();
               toggleAdminMode();
             }}
-            className={`p-2 sm:p-2 rounded-xl transition-all cursor-pointer flex items-center gap-1 text-xs font-bold min-h-[38px] sm:min-h-[42px] ${
+            className={`p-2 sm:px-3 sm:py-2 rounded-xl transition-all cursor-pointer flex items-center gap-1.5 text-xs font-bold min-h-[38px] sm:min-h-[42px] ${
               isAdminMode
                 ? 'bg-amber-500 text-white shadow-md'
                 : 'text-gray-400 hover:text-gray-700 hover:bg-gray-100'

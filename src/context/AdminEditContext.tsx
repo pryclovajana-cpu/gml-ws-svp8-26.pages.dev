@@ -9,6 +9,8 @@ interface AdminEditContextType {
   getEditableText: (id: string, defaultText: string) => string;
   updateEditableText: (id: string, newText: string) => void;
   resetAllEditableTexts: () => void;
+  getAllEditsJson: () => string;
+  hasEdits: boolean;
 }
 
 const STORAGE_KEY = 'gml_slide_text_edits_v1';
@@ -97,6 +99,10 @@ export const AdminEditProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     localStorage.removeItem(STORAGE_KEY);
   };
 
+  const getAllEditsJson = (): string => {
+    return JSON.stringify(textMap, null, 2);
+  };
+
   return (
     <AdminEditContext.Provider
       value={{
@@ -106,6 +112,8 @@ export const AdminEditProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         getEditableText,
         updateEditableText,
         resetAllEditableTexts,
+        getAllEditsJson,
+        hasEdits: Object.keys(textMap).length > 0,
       }}
     >
       {children}
