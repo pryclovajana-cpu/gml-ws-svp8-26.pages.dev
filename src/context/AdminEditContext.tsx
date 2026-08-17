@@ -48,8 +48,7 @@ export const AdminEditProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     }
   };
 
-  const handlePasswordSubmit = (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
+  const handlePasswordSubmit = () => {
     if (passwordInput === ADMIN_PASSWORD) {
       setIsAdminMode(true);
       setShowPasswordModal(false);
@@ -111,10 +110,20 @@ export const AdminEditProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     >
       {children}
 
-      {/* Admin Password Protected Modal Dialog */}
+      {/* Admin Password Protected Modal Dialog (No <form> to prevent browser password manager popup) */}
       {showPasswordModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm select-none animate-fade-in">
-          <div className="bg-white max-w-sm w-full rounded-3xl shadow-2xl border border-gml-green-200 p-6 space-y-4">
+          <div
+            className="bg-white max-w-sm w-full rounded-3xl shadow-2xl border border-gml-green-200 p-6 space-y-4"
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                handlePasswordSubmit();
+              } else if (e.key === 'Escape') {
+                setShowPasswordModal(false);
+              }
+            }}
+          >
             <div className="flex items-center justify-between border-b border-gray-100 pb-3">
               <div className="flex items-center gap-2.5">
                 <div className="p-2 bg-amber-100 text-amber-800 rounded-xl">
@@ -133,7 +142,7 @@ export const AdminEditProvider: React.FC<{ children: React.ReactNode }> = ({ chi
               </button>
             </div>
 
-            <form onSubmit={handlePasswordSubmit} className="space-y-3 pt-1">
+            <div className="space-y-3 pt-1">
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-gray-600 block">
                   Zadejte administrátorské heslo:
@@ -143,6 +152,12 @@ export const AdminEditProvider: React.FC<{ children: React.ReactNode }> = ({ chi
                   <input
                     type="password"
                     autoFocus
+                    autoComplete="off"
+                    autoCorrect="off"
+                    autoCapitalize="off"
+                    spellCheck={false}
+                    data-lpignore="true"
+                    data-form-type="other"
                     placeholder="Heslo..."
                     value={passwordInput}
                     onChange={(e) => {
@@ -172,13 +187,14 @@ export const AdminEditProvider: React.FC<{ children: React.ReactNode }> = ({ chi
                   Zrušit
                 </button>
                 <button
-                  type="submit"
+                  type="button"
+                  onClick={handlePasswordSubmit}
                   className="flex-1 py-2.5 bg-gml-green-600 hover:bg-gml-green-700 text-white font-bold text-xs rounded-xl transition-all shadow-md cursor-pointer flex items-center justify-center gap-1.5"
                 >
                   <Check className="w-4 h-4" /> Odemknout
                 </button>
               </div>
-            </form>
+            </div>
           </div>
         </div>
       )}

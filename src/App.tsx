@@ -63,8 +63,9 @@ export const App: React.FC = () => {
   useEffect(() => {
     if (!isMobileVoteRoute) {
       try {
-        localStorage.setItem('gml_active_slide_index_v1', currentSlideIndex.toString());
-        window.location.hash = `#/slide/${currentSlideIndex}`;
+        if (window.location.hash !== `#/slide/${currentSlideIndex}`) {
+          window.history.replaceState(null, '', `#/slide/${currentSlideIndex}`);
+        }
       } catch (e) {
         // Ignore storage errors
       }
