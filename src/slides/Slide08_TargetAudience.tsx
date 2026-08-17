@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { Users, GraduationCap, Building2, ChevronRight, Eye } from 'lucide-react';
-import { EditableText } from '../context/AdminEditContext';
+import { EditableText, useAdminEdit } from '../context/AdminEditContext';
 
 export const Slide08_TargetAudience: React.FC = () => {
+  const { isAdminMode } = useAdminEdit();
+
   // Card 3 starts hidden (or each card can be toggled by clicking)
   const [revealedCards, setRevealedCards] = useState<Record<string, boolean>>({
     t1: true,
@@ -60,7 +62,7 @@ export const Slide08_TargetAudience: React.FC = () => {
       {/* Top Header */}
       <div className="space-y-1 border-b border-gray-100 pb-3 sm:pb-4">
         <span className="text-xs font-bold uppercase tracking-widest text-gml-green-700 block">
-          Cílová skupina ŠVP
+          <EditableText id="s8_badge" defaultText="Cílová skupina ŠVP" />
         </span>
         <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold font-display text-gml-slate-900">
           <EditableText id="s8_title" defaultText="Komu má nový ŠVP primárně sloužit?" />
@@ -71,12 +73,19 @@ export const Slide08_TargetAudience: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-6 my-auto items-stretch py-2 sm:py-4">
         {targets.map((t) => {
           const Icon = t.icon;
-          const isRevealed = revealedCards[t.id];
+          // In admin mode, automatically show all cards so everything is editable
+          const isRevealed = isAdminMode || revealedCards[t.id];
 
           return (
             <div
               key={t.id}
-              onClick={() => toggleCard(t.id)}
+              onClick={(e) => {
+                const target = e.target as HTMLElement;
+                if (target.isContentEditable || target.closest('[contenteditable="true"]')) {
+                  return;
+                }
+                toggleCard(t.id);
+              }}
               className={`p-5 sm:p-6 rounded-3xl border-2 transition-all duration-300 cursor-pointer flex flex-col justify-between hover:shadow-lg min-h-[220px] sm:min-h-[280px] ${
                 t.color
               } ${isRevealed ? 'shadow-sm' : 'hover:scale-[1.01]'}`}
@@ -100,7 +109,9 @@ export const Slide08_TargetAudience: React.FC = () => {
                         className="flex items-start gap-2 text-xs sm:text-sm text-gml-slate-800 font-medium leading-relaxed"
                       >
                         <ChevronRight className="w-4 h-4 text-gml-green-600 shrink-0 mt-0.5" />
-                        <span>{pt}</span>
+                        <span>
+                          <EditableText id={`s8_${t.id}_point_${pIdx}`} defaultText={pt} />
+                        </span>
                       </li>
                     ))}
                   </ul>
@@ -117,7 +128,10 @@ export const Slide08_TargetAudience: React.FC = () => {
 
       {/* Bottom Takeaway */}
       <div className="p-3.5 sm:p-4 bg-gray-50 border border-gray-200 rounded-2xl text-center text-xs sm:text-sm font-semibold text-gml-slate-800">
-        ŠVP není byrokratický výkaz pro inspekci, ale živá dohoda celého školního společenství.
+        <EditableText
+          id="s8_bottom_takeaway"
+          defaultText="ŠVP není byrokratický výkaz pro inspekci, ale živá dohoda celého školního společenství."
+        />
       </div>
     </div>
   );
