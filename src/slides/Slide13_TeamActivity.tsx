@@ -42,7 +42,7 @@ export const Slide13_TeamActivity: React.FC = () => {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-gray-100 pb-3 sm:pb-4">
         <div className="space-y-1">
           <span className="text-xs font-bold uppercase tracking-widest text-gml-green-700 block">
-            Týmová aktivita s odpočtem
+            <EditableText id="s13_badge" defaultText="Týmová aktivita s odpočtem" />
           </span>
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold font-display text-gml-slate-900">
             <EditableText id="s13_title" defaultText="Práce v předmětových komisích" />
@@ -103,7 +103,7 @@ export const Slide13_TeamActivity: React.FC = () => {
           <div className="flex items-center gap-2 text-gml-green-700">
             <FileText className="w-5 h-5" />
             <h3 className="font-display font-bold text-lg sm:text-xl text-gml-slate-900">
-              Zadání pro předmětové komise
+              <EditableText id="s13_left_title" defaultText="Zadání pro předmětové komise" />
             </h3>
           </div>
 
@@ -112,19 +112,34 @@ export const Slide13_TeamActivity: React.FC = () => {
               <span className="w-6 h-6 rounded-lg bg-gml-green-100 text-gml-green-800 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">
                 1
               </span>
-              <p>Zvolte 1 konkrétní klíčovou kompetenci či gramotnost z nového RVP ZV.</p>
+              <p>
+                <EditableText
+                  id="s13_step1"
+                  defaultText="Zvolte 1 konkrétní klíčovou kompetenci či gramotnost z nového RVP ZV."
+                />
+              </p>
             </div>
             <div className="flex items-start gap-2.5">
               <span className="w-6 h-6 rounded-lg bg-gml-yellow-100 text-gml-yellow-800 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">
                 2
               </span>
-              <p>Formulujte 1 ukázkový očekávaný výstup (OVU) pro kvartu (konec 9. ročníku).</p>
+              <p>
+                <EditableText
+                  id="s13_step2"
+                  defaultText="Formulujte 1 ukázkový očekávaný výstup (OVU) pro kvartu (konec 9. ročníku)."
+                />
+              </p>
             </div>
             <div className="flex items-start gap-2.5">
               <span className="w-6 h-6 rounded-lg bg-blue-100 text-blue-800 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">
                 3
               </span>
-              <p>Navrhněte 1 konkrétní badatelskou / tvůrčí aktivitu, kterou žák kompetenci prokáže.</p>
+              <p>
+                <EditableText
+                  id="s13_step3"
+                  defaultText="Navrhněte 1 konkrétní badatelskou / tvůrčí aktivitu, kterou žák kompetenci prokáže."
+                />
+              </p>
             </div>
           </div>
         </div>
@@ -134,16 +149,24 @@ export const Slide13_TeamActivity: React.FC = () => {
           <div className="flex items-center gap-2 text-gml-yellow-800">
             <CheckCircle2 className="w-5 h-5 text-gml-yellow-600" />
             <h3 className="font-display font-bold text-lg sm:text-xl text-gml-slate-900">
-              Očekávaný společný výstup
+              <EditableText id="s13_right_title" defaultText="Očekávaný společný výstup" />
             </h3>
           </div>
 
           <div className="p-4 bg-white/90 rounded-2xl border border-gray-200 text-xs sm:text-sm text-gml-slate-800 space-y-2">
-            <p className="font-bold text-gml-green-800">Krátká společná reflexe (1–2 min na komisi):</p>
-            <ul className="list-disc pl-4 space-y-1 text-gray-600">
-              <li>Co se nám daří a na co chceme navázat?</li>
-              <li>Kde vidíme největší příležitost pro mezipředmětové propojení?</li>
-              <li>Co z toho zakotvíme přímo do nového ŠVP 8G?</li>
+            <p className="font-bold text-gml-green-800">
+              <EditableText id="s13_reflection_title" defaultText="Krátká společná reflexe (1–2 min na komisi):" />
+            </p>
+            <ul className="list-disc pl-4 space-y-1.5 text-gray-700 font-medium">
+              <li>
+                <EditableText id="s13_bullet1" defaultText="Co se nám daří a na co chceme navázat?" />
+              </li>
+              <li>
+                <EditableText id="s13_bullet2" defaultText="Kde vidíme největší příležitost pro mezipředmětové propojení?" />
+              </li>
+              <li>
+                <EditableText id="s13_bullet3" defaultText="Co z toho zakotvíme přímo do nového ŠVP 8G?" />
+              </li>
             </ul>
           </div>
         </div>
@@ -151,7 +174,10 @@ export const Slide13_TeamActivity: React.FC = () => {
 
       {/* Bottom Hint */}
       <div className="p-3.5 sm:p-4 bg-gray-50 border border-gray-200 rounded-2xl text-center text-xs sm:text-sm font-semibold text-gml-slate-800">
-        Výstupy komisí poslouží jako přímý podklad pro koordinační tým ŠVP.
+        <EditableText
+          id="s13_bottom_hint"
+          defaultText="Výstupy komisí poslouží jako přímý podklad pro koordinační tým ŠVP."
+        />
       </div>
     </div>
   );
