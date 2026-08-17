@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { CheckSquare, Square, X, BookOpen, Sparkles } from 'lucide-react';
+import { CheckSquare, Square, X, BookOpen, Sparkles, ChevronRight } from 'lucide-react';
 import { EditableText } from '../context/AdminEditContext';
 
 export const Slide10_GiftedSupport: React.FC = () => {
@@ -104,13 +104,14 @@ export const Slide10_GiftedSupport: React.FC = () => {
         </div>
       </div>
 
-      {/* Modal Dialog */}
+      {/* Modal Dialog with Exact Authentic Good Practice Text */}
       {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gml-slate-900/50 backdrop-blur-sm">
-          <div className="bg-white max-w-2xl w-full rounded-3xl shadow-2xl border border-gml-green-200 p-5 sm:p-6 space-y-4 max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gml-slate-900/50 backdrop-blur-sm animate-fade-in">
+          <div className="bg-white max-w-2xl w-full rounded-3xl shadow-2xl border border-gml-green-200 p-6 sm:p-8 space-y-5 max-h-[90vh] overflow-y-auto">
+            {/* Modal Header */}
             <div className="flex items-center justify-between border-b border-gray-100 pb-3">
-              <h3 className="text-lg sm:text-xl font-bold font-display text-gml-slate-900">
-                <EditableText id="s10_modal_title" defaultText="Příklad dobré praxe" />
+              <h3 className="text-lg sm:text-xl font-extrabold font-display text-gml-slate-900">
+                <EditableText id="s10_modal_heading" defaultText="Příklad dobré praxe:" />
               </h3>
               <button
                 onClick={() => setShowModal(false)}
@@ -120,22 +121,71 @@ export const Slide10_GiftedSupport: React.FC = () => {
               </button>
             </div>
 
-            <div className="space-y-3 text-xs sm:text-sm text-gray-700 leading-relaxed">
-              <p>
-                <strong>1. Flexibilní moduly:</strong> Žáci vyšších ročníků mají možnost volit specializované semináře podle zaměření.
+            {/* Modal Body Content */}
+            <div className="space-y-4 text-xs sm:text-sm text-gml-slate-900 leading-relaxed">
+              <h4 className="text-base sm:text-lg font-black font-display text-gml-slate-900">
+                <EditableText id="s10_modal_subheading" defaultText="Žáci nadaní a mimořádně nadaní" />
+              </h4>
+
+              <p className="font-medium text-gray-700">
+                <EditableText
+                  id="s10_modal_lead"
+                  defaultText="U nadaných žáků směřuje hodnocení k tomu, aby si zachovali vztah k učení a ochotu jít do náročných úkolů. Proto:"
+                />
               </p>
-              <p>
-                <strong>2. Gradace učiva:</strong> Každý tematický celek obsahuje 3 úrovně náročnosti s jasnými kritérii hodnocení.
-              </p>
-              <p>
-                <strong>3. Projektové týdny:</strong> Mezipředmětové propojení přírodních i společenských věd v praxi.
+
+              <ul className="space-y-2.5 pl-1">
+                <li className="flex items-start gap-2.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-gml-green-600 shrink-0 mt-2" />
+                  <span>
+                    <EditableText
+                      id="s10_modal_pt1"
+                      defaultText="hodnotíme i náročnější varianty zadání, na kterých žák pracoval, nikoli jen splnění základní úrovně,"
+                    />
+                  </span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-gml-green-600 shrink-0 mt-2" />
+                  <span>
+                    <EditableText
+                      id="s10_modal_pt2"
+                      defaultText="oceňujeme postup, originalitu řešení a ochotu riskovat neúspěch, ne pouze bezchybný výkon,"
+                    />
+                  </span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-gml-green-600 shrink-0 mt-2" />
+                  <span>
+                    <EditableText
+                      id="s10_modal_pt3"
+                      defaultText="vedeme žáka k tomu, aby si stanovoval vlastní cíle nad rámec kritérií třídy, a hodnotíme jejich naplnění,"
+                    />
+                  </span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-gml-green-600 shrink-0 mt-2" />
+                  <span>
+                    <EditableText
+                      id="s10_modal_pt4"
+                      defaultText="u mimořádně nadaných žáků s IVP se hodnocení vztahuje k cílům stanoveným v tomto plánu."
+                    />
+                  </span>
+                </li>
+              </ul>
+
+              <p className="p-3.5 bg-amber-50/80 border border-amber-200 rounded-2xl text-xs sm:text-sm font-medium text-gml-slate-800 leading-relaxed">
+                <EditableText
+                  id="s10_modal_note"
+                  defaultText="Zvláštní pozornost věnujeme nadaným žákům s vysokou citlivostí a dvojí výjimečností — hodnocení u nich nesmí vytvářet tlak, který by prohluboval úzkost nebo vedl k vyhýbání se náročným úkolům."
+                />
               </p>
             </div>
 
+            {/* Modal Footer */}
             <div className="pt-3 border-t border-gray-100 flex justify-end">
               <button
                 onClick={() => setShowModal(false)}
-                className="px-5 py-2 bg-gml-green-600 text-white font-bold text-xs rounded-xl hover:bg-gml-green-700 cursor-pointer"
+                className="px-6 py-2.5 bg-gml-green-600 text-white font-bold text-xs rounded-xl hover:bg-gml-green-700 cursor-pointer shadow-sm transition-all"
               >
                 Zavřít
               </button>
