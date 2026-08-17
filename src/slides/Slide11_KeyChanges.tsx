@@ -88,7 +88,7 @@ export const Slide11_KeyChanges: React.FC = () => {
       </div>
 
       {/* Bottom Takeaway */}
-      <div className="p-3.5 sm:p-4 bg-gml-slate-900 text-white rounded-2xl text-center text-xs sm:text-sm font-semibold shadow-md">
+      <div className="p-3.5 sm:p-4 bg-gml-green-50 border border-gml-green-200 rounded-2xl text-center text-xs sm:text-sm text-gml-slate-900 font-bold shadow-2xs">
         <EditableText
           id="s11_bottom_takeaway"
           defaultText="Všechny 4 kategorie společného vzdělávacího obsahu tvoří provázaný systém, který v ŠVP 8G propojujeme do smysluplného celku."
