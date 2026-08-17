@@ -26,18 +26,29 @@
   background: rgba(22, 163, 74, 0.45);
 }
 
-/* Admin Editable Highlight Styling */
+/* Admin Editable Highlight Styling & Focus */
 .admin-editable-active [contenteditable="true"] {
+  user-select: text !important;
+  -webkit-user-select: text !important;
+  cursor: text !important;
+  pointer-events: auto !important;
   outline: 2px dashed #eab308;
   outline-offset: 4px;
   border-radius: 4px;
-  background-color: rgba(254, 240, 138, 0.25);
+  background-color: rgba(254, 240, 138, 0.35);
   transition: all 0.2s ease;
+  display: inline-block;
+  min-width: 20px;
+}
+
+.admin-editable-active [contenteditable="true"]:hover {
+  background-color: rgba(254, 240, 138, 0.6);
+  outline-color: #ca8a04;
 }
 
 .admin-editable-active [contenteditable="true"]:focus {
-  outline: 2px solid #16a34a;
-  background-color: rgba(220, 252, 231, 0.4);
+  outline: 2px solid #16a34a !important;
+  background-color: rgba(220, 252, 231, 0.6) !important;
 }
 
 /* Glassmorphism styling */

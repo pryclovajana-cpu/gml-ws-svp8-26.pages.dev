@@ -226,12 +226,23 @@ export const EditableText: React.FC<{
 
   return (
     <Component
-      contentEditable
+      contentEditable="true"
       suppressContentEditableWarning
-      className={`${className} outline-none border-b-2 border-dashed border-amber-400 bg-amber-50/70 hover:bg-amber-100/90 rounded px-1 transition-all cursor-text focus:border-amber-600 focus:bg-amber-100`}
+      tabIndex={0}
+      className={`${className} outline-none border-b-2 border-dashed border-amber-400 bg-amber-50/70 hover:bg-amber-100/90 rounded px-1 transition-all cursor-text focus:border-amber-600 focus:bg-amber-100 select-text`}
+      onClick={(e: React.MouseEvent) => {
+        e.stopPropagation();
+      }}
+      onKeyDown={(e: React.KeyboardEvent) => {
+        e.stopPropagation();
+      }}
+      onInput={(e: React.FormEvent<HTMLElement>) => {
+        const newText = e.currentTarget.innerText;
+        updateEditableText(id, newText);
+      }}
       onBlur={(e: React.FocusEvent<HTMLElement>) => {
         const newText = e.currentTarget.innerText.trim();
-        if (newText && newText !== currentText) {
+        if (newText) {
           updateEditableText(id, newText);
         }
       }}

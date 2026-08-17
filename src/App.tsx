@@ -95,11 +95,18 @@ export const App: React.FC = () => {
   // Keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (['INPUT', 'TEXTAREA'].includes((e.target as HTMLElement).tagName)) {
-        return;
+      const target = (e.target || document.activeElement) as HTMLElement;
+      if (
+        target &&
+        (['INPUT', 'TEXTAREA'].includes(target.tagName) ||
+          target.isContentEditable ||
+          target.getAttribute('contenteditable') === 'true' ||
+          target.closest('[contenteditable="true"]'))
+      ) {
+        return; // Ignore presentation shortcuts when user is typing text
       }
 
-      if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+      if (e.key === 'ArrowRight' || e.key === 'PageDown') {
         e.preventDefault();
         goToNextSlide();
       } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
@@ -111,7 +118,7 @@ export const App: React.FC = () => {
       } else if (e.key === 'End') {
         e.preventDefault();
         goToSlide(SLIDES_REGISTRY.length - 1);
-      } else if (e.key === 'm' || e.key === 'M') {
+      } else if ((e.key === 'm' || e.key === 'M') && !e.ctrlKey && !e.altKey && !e.metaKey) {
         e.preventDefault();
         setIsDrawerOpen((prev) => !prev);
       } else if (e.key === 'Escape') {
