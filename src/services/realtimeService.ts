@@ -1,14 +1,26 @@
 import { PollState, ScaleResponse, TextResponse } from '../types';
 
-const BROADCAST_CHANNEL_NAME = 'gml_workshop_poll_sync_v2';
-const STORAGE_KEY_POLL1 = 'gml_poll1_live_state_v2';
-const STORAGE_KEY_POLL2 = 'gml_poll2_live_state_v2';
+const BROADCAST_CHANNEL_NAME = 'gml_workshop_poll_sync_v3';
+const STORAGE_KEY_POLL1 = 'gml_poll1_live_state_v3';
+const STORAGE_KEY_POLL2 = 'gml_poll2_live_state_v3';
+const NTFY_TOPIC = 'gml_ws_svp8_26_sync_live';
+const NTFY_BASE_URL = `https://ntfy.sh/${NTFY_TOPIC}`;
+
+interface SyncMessage {
+  type: 'scale' | 'text' | 'reset';
+  pollId: string;
+  payload?: any;
+  timestamp: number;
+}
 
 class RealtimeService {
   private channel: BroadcastChannel | null = null;
+  private eventSource: EventSource | null = null;
   private listeners: Map<string, Set<(state: PollState) => void>> = new Map();
+  private processedMessageIds: Set<string> = new Set();
 
   constructor() {
+    // 1. Local tab/window synchronization (BroadcastChannel)
     if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
       this.channel = new BroadcastChannel(BROADCAST_CHANNEL_NAME);
       this.channel.onmessage = (event) => {
@@ -20,7 +32,13 @@ class RealtimeService {
       };
     }
 
-    // Listen to storage events across windows
+    // 2. Cross-device Internet synchronization via Global SSE (Server-Sent Events)
+    if (typeof window !== 'undefined' && typeof EventSource !== 'undefined') {
+      this.initCloudSSE();
+      this.fetchCloudHistory();
+    }
+
+    // 3. Local storage listener
     if (typeof window !== 'undefined') {
       window.addEventListener('storage', (e) => {
         if (e.key === STORAGE_KEY_POLL1) {
@@ -29,6 +47,96 @@ class RealtimeService {
           this.notifyListeners('poll2', this.getPollState('poll2'));
         }
       });
+    }
+  }
+
+  private initCloudSSE() {
+    try {
+      if (this.eventSource) {
+        this.eventSource.close();
+      }
+      this.eventSource = new EventSource(`${NTFY_BASE_URL}/sse`);
+      
+      this.eventSource.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          if (data && data.message) {
+            const syncMsg: SyncMessage = JSON.parse(data.message);
+            this.handleIncomingCloudMessage(syncMsg);
+          }
+        } catch (e) {
+          // Ignore parse errors from system messages
+        }
+      };
+
+      this.eventSource.onerror = () => {
+        // SSE handles reconnection automatically
+      };
+    } catch (e) {
+      console.warn('Realtime cloud SSE initialization fallback', e);
+    }
+  }
+
+  // Fetch recent votes from cloud on initial load
+  private async fetchCloudHistory() {
+    try {
+      const response = await fetch(`${NTFY_BASE_URL}/json?poll=1&since=24h`);
+      if (!response.ok) return;
+      const text = await response.text();
+      const lines = text.trim().split('\n');
+      for (const line of lines) {
+        if (!line.trim()) continue;
+        try {
+          const data = JSON.parse(line);
+          if (data && data.message) {
+            const syncMsg: SyncMessage = JSON.parse(data.message);
+            this.handleIncomingCloudMessage(syncMsg);
+          }
+        } catch (e) {
+          // Ignore line parse error
+        }
+      }
+    } catch (e) {
+      // Offline fallback to local state
+    }
+  }
+
+  private handleIncomingCloudMessage(msg: SyncMessage) {
+    if (!msg || !msg.pollId) return;
+    const msgId = `${msg.type}_${msg.pollId}_${msg.timestamp}_${JSON.stringify(msg.payload || '')}`;
+    if (this.processedMessageIds.has(msgId)) return;
+    this.processedMessageIds.add(msgId);
+
+    const pollId = msg.pollId;
+    const currentState = this.getPollState(pollId);
+
+    if (msg.type === 'scale' && msg.payload) {
+      const exists = currentState.scaleResponses.some((r) => r.id === msg.payload.id);
+      if (!exists) {
+        const updated: PollState = {
+          ...currentState,
+          scaleResponses: [...currentState.scaleResponses, msg.payload],
+        };
+        this.savePollState(pollId, updated, false);
+        this.notifyListeners(pollId, updated);
+      }
+    } else if (msg.type === 'text' && msg.payload) {
+      const exists = currentState.textResponses.some((r) => r.id === msg.payload.id);
+      if (!exists) {
+        const updated: PollState = {
+          ...currentState,
+          textResponses: [msg.payload, ...currentState.textResponses],
+        };
+        this.savePollState(pollId, updated, false);
+        this.notifyListeners(pollId, updated);
+      }
+    } else if (msg.type === 'reset') {
+      const emptyState: PollState = {
+        textResponses: [],
+        scaleResponses: [],
+      };
+      this.savePollState(pollId, emptyState, false);
+      this.notifyListeners(pollId, emptyState);
     }
   }
 
@@ -47,21 +155,33 @@ class RealtimeService {
       }
     }
 
-    // STRICTLY EMPTY INITIAL STATE - NO PREFILLED MOCK DATA
     const emptyDefaultState: PollState = {
       textResponses: [],
       scaleResponses: [],
     };
 
-    this.savePollState(pollId, emptyDefaultState);
     return emptyDefaultState;
   }
 
-  private savePollState(pollId: string, state: PollState) {
+  private savePollState(pollId: string, state: PollState, broadcastToCloud = true) {
     const key = this.getStorageKey(pollId);
     localStorage.setItem(key, JSON.stringify(state));
     if (this.channel) {
       this.channel.postMessage({ pollId });
+    }
+  }
+
+  private publishToCloud(msg: SyncMessage) {
+    try {
+      fetch(NTFY_BASE_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(msg),
+      }).catch(() => {
+        // Non-blocking network fallback
+      });
+    } catch (e) {
+      // Ignore network errors
     }
   }
 
@@ -80,6 +200,15 @@ class RealtimeService {
     };
     this.savePollState(pollId, updated);
     this.notifyListeners(pollId, updated);
+
+    // Broadcast across all devices via Cloud
+    const syncMsg: SyncMessage = {
+      type: 'text',
+      pollId,
+      payload: newResponse,
+      timestamp: Date.now(),
+    };
+    this.publishToCloud(syncMsg);
   }
 
   public addScaleVote(pollId: string, value: number) {
@@ -96,6 +225,15 @@ class RealtimeService {
     };
     this.savePollState(pollId, updated);
     this.notifyListeners(pollId, updated);
+
+    // Broadcast across all devices via Cloud
+    const syncMsg: SyncMessage = {
+      type: 'scale',
+      pollId,
+      payload: newResponse,
+      timestamp: Date.now(),
+    };
+    this.publishToCloud(syncMsg);
   }
 
   public resetVotes(pollId: string) {
@@ -105,6 +243,14 @@ class RealtimeService {
     };
     this.savePollState(pollId, emptyState);
     this.notifyListeners(pollId, emptyState);
+
+    // Broadcast reset to all phones and presentation screens
+    const syncMsg: SyncMessage = {
+      type: 'reset',
+      pollId,
+      timestamp: Date.now(),
+    };
+    this.publishToCloud(syncMsg);
   }
 
   public subscribe(pollId: string, callback: (state: PollState) => void): () => void {
@@ -113,7 +259,7 @@ class RealtimeService {
     }
     this.listeners.get(pollId)!.add(callback);
 
-    // Immediate callback with current state
+    // Initial state push
     callback(this.getPollState(pollId));
 
     return () => {
@@ -131,55 +277,47 @@ class RealtimeService {
     }
   }
 
-  /**
-   * Calculates Mean, Standard Deviation, and Gaussian Bell Curve points (Scale 1-100)
-   */
   public calculateGaussian(values: number[]): {
     mean: number;
     stdDev: number;
     points: { x: number; y: number }[];
-    hasData: boolean;
+    count: number;
   } {
     if (values.length === 0) {
-      return {
-        mean: 0,
-        stdDev: 0,
-        points: [],
-        hasData: false,
-      };
+      return { mean: 50, stdDev: 15, points: [], count: 0 };
     }
 
-    const n = values.length;
-    const sum = values.reduce((a, b) => a + b, 0);
-    const mean = Math.round((sum / n) * 10) / 10;
+    const count = values.length;
+    const mean = values.reduce((sum, v) => sum + v, 0) / count;
 
-    // Sample Standard Deviation
     let variance = 0;
-    if (n > 1) {
-      variance = values.reduce((acc, val) => acc + Math.pow(val - mean, 2), 0) / (n - 1);
+    if (count > 1) {
+      const sumSq = values.reduce((sum, v) => sum + Math.pow(v - mean, 2), 0);
+      variance = sumSq / (count - 1);
     } else {
-      variance = 15; // default spread for single vote
+      variance = 100;
     }
+    const stdDev = Math.max(8, Math.sqrt(variance));
 
-    const stdDev = Math.max(2, Math.round(Math.sqrt(variance) * 10) / 10);
-
-    // Generate normal distribution curve points across x in [1, 100]
     const points: { x: number; y: number }[] = [];
-    const factor = 1 / (stdDev * Math.sqrt(2 * Math.PI));
-
-    for (let x = 1; x <= 100; x += 1) {
+    const step = 2;
+    for (let x = 0; x <= 100; x += step) {
       const exponent = -Math.pow(x - mean, 2) / (2 * Math.pow(stdDev, 2));
-      const normalDensity = factor * Math.exp(exponent);
-      // Normalized amplitude for responsive SVG height
-      const yNormalized = normalDensity * stdDev * 2.5;
-      points.push({ x, y: Math.min(1, Math.max(0, yNormalized)) });
+      const y = (1 / (stdDev * Math.sqrt(2 * Math.PI))) * Math.exp(exponent);
+      points.push({ x, y });
     }
+
+    const maxY = Math.max(...points.map((p) => p.y), 0.0001);
+    const normalizedPoints = points.map((p) => ({
+      x: p.x,
+      y: (p.y / maxY) * 100,
+    }));
 
     return {
-      mean,
-      stdDev,
-      points,
-      hasData: true,
+      mean: Math.round(mean * 10) / 10,
+      stdDev: Math.round(stdDev * 10) / 10,
+      points: normalizedPoints,
+      count,
     };
   }
 }
