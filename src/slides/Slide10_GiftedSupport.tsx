@@ -1,23 +1,27 @@
 import React, { useState } from 'react';
-import { CheckSquare, Square, X, BookOpen, Sparkles, ChevronRight } from 'lucide-react';
+import { CheckSquare, Square, X, BookOpen, Sparkles } from 'lucide-react';
 import { EditableText } from '../context/AdminEditContext';
 
 export const Slide10_GiftedSupport: React.FC = () => {
   const [checkedItems, setCheckedItems] = useState<{ [key: string]: boolean }>({
     c1: true,
     c2: true,
-    c3: false,
-    c4: true,
+    c3: true,
+    c4: false,
     c5: false,
+    c6: false,
+    c7: false,
   });
   const [showModal, setShowModal] = useState<boolean>(false);
 
   const checklist = [
-    { id: 'c1', text: 'Gradace náročnosti úloh (Základní -> Rozšiřující -> Výzva)' },
-    { id: 'c2', text: 'Možnost volby vlastního tempa a hloubky zpracování témat' },
-    { id: 'c3', text: 'Propojování teorie s badatelskou výukou a projekty' },
-    { id: 'c4', text: 'Pravidelné zařazování otevřených úloh bez jednoho správného řešení' },
-    { id: 'c5', text: 'Formativní zpětná vazba zaměřená na osobní pokrok a pokus/omyl' },
+    { id: 'c1', text: '1. Postoj a vize školy' },
+    { id: 'c2', text: '2. Identifikace a práce s nadanými žáky' },
+    { id: 'c3', text: '3. Metody a formy výuky' },
+    { id: 'c4', text: '4. Hodnocení' },
+    { id: 'c5', text: '5. Osobnostní a sociální výchova (OSV)' },
+    { id: 'c6', text: '6. Organizační a systémové prvky' },
+    { id: 'c7', text: '7. Propojení s komunitou a mimoškolními aktivitami' },
   ];
 
   const toggleCheck = (id: string) => {
@@ -36,16 +40,16 @@ export const Slide10_GiftedSupport: React.FC = () => {
         </h2>
       </div>
 
-      {/* Grid: Left Checklist & Right Modal Trigger */}
+      {/* Grid: Left Checklist (7 Areas) & Right Modal Trigger */}
       <div className="grid grid-cols-1 md:grid-cols-12 gap-5 sm:gap-6 my-auto py-2 sm:py-4">
-        {/* Left Column: Interactive Checklist */}
-        <div className="md:col-span-7 bg-white p-4 sm:p-6 rounded-3xl border border-gml-green-200 shadow-sm space-y-3 sm:space-y-4">
+        {/* Left Column: Interactive 7 Areas Checklist */}
+        <div className="md:col-span-7 bg-white p-4 sm:p-5 rounded-3xl border border-gml-green-200 shadow-sm space-y-2.5 sm:space-y-3">
           <h3 className="text-base sm:text-lg font-bold font-display text-gml-slate-900 flex items-center gap-2">
             <Sparkles className="w-5 h-5 text-gml-green-600 shrink-0" />
-            <EditableText id="s10_checklist_heading" defaultText="Standardy pro výuku na GML 8G" />
+            <EditableText id="s10_checklist_heading" defaultText="Oblasti podpory nadání v ŠVP" />
           </h3>
 
-          <div className="space-y-2 sm:space-y-3">
+          <div className="space-y-1.5 sm:space-y-2 max-h-[340px] sm:max-h-[380px] overflow-y-auto pr-1">
             {checklist.map((item) => {
               const isChecked = !!checkedItems[item.id];
               return (
@@ -58,19 +62,19 @@ export const Slide10_GiftedSupport: React.FC = () => {
                     }
                     toggleCheck(item.id);
                   }}
-                  className={`p-3 sm:p-3.5 rounded-2xl border transition-all cursor-pointer flex items-center gap-3 ${
+                  className={`p-2.5 sm:p-3 rounded-2xl border transition-all cursor-pointer flex items-center gap-3 ${
                     isChecked
-                      ? 'bg-gml-green-50/80 border-gml-green-300 text-gml-slate-900'
-                      : 'bg-gray-50 border-gray-200 text-gray-500 hover:bg-gray-100'
+                      ? 'bg-gml-green-50/90 border-gml-green-300 text-gml-slate-900 shadow-2xs'
+                      : 'bg-gray-50/80 border-gray-200 text-gray-600 hover:bg-gray-100'
                   }`}
                 >
                   {isChecked ? (
-                    <CheckSquare className="w-5 h-5 text-gml-green-600 shrink-0" />
+                    <CheckSquare className="w-4 h-4 sm:w-5 sm:h-5 text-gml-green-600 shrink-0" />
                   ) : (
-                    <Square className="w-5 h-5 text-gray-400 shrink-0" />
+                    <Square className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400 shrink-0" />
                   )}
-                  <span className="text-xs sm:text-sm font-semibold leading-snug">
-                    <EditableText id={`s10_${item.id}`} defaultText={item.text} />
+                  <span className="text-xs sm:text-sm font-bold leading-tight">
+                    <EditableText id={`s10_area_${item.id}`} defaultText={item.text} />
                   </span>
                 </div>
               );
