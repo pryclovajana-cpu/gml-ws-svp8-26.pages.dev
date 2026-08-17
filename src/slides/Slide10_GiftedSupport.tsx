@@ -99,7 +99,8 @@ export const Slide10_GiftedSupport: React.FC = () => {
             onClick={() => setShowModal(true)}
             className="w-full py-3 bg-gml-yellow-400 text-gml-slate-900 font-extrabold text-xs rounded-2xl hover:bg-gml-yellow-300 transition-all shadow-sm flex items-center justify-center gap-2 cursor-pointer"
           >
-            <BookOpen className="w-4 h-4" /> Zobrazit ukázku dobré praxe
+            <BookOpen className="w-4 h-4" />
+            <EditableText id="s10_practice_btn" defaultText="Zobrazit ukázku dobré praxe" />
           </button>
         </div>
       </div>
