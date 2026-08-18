@@ -14,8 +14,8 @@ import { Slide08_TargetAudience } from './Slide08_TargetAudience';
 import { Slide09_GiftedInfographic } from './Slide09_GiftedInfographic';
 import { Slide10_GiftedSupport } from './Slide10_GiftedSupport';
 import { Slide11_KeyChanges } from './Slide11_KeyChanges';
-import { Slide12_BridgeCompetencies } from './Slide12_BridgeCompetencies';
 import { Slide12b_RvpPortal } from './Slide12b_RvpPortal';
+import { Slide12_BridgeCompetencies } from './Slide12_BridgeCompetencies';
 import { Slide13_TeamActivity } from './Slide13_TeamActivity';
 import { Slide14_SubjectIntegration } from './Slide14_SubjectIntegration';
 import { Slide15_PeerMentoring } from './Slide15_PeerMentoring';
@@ -43,8 +43,8 @@ export const SLIDES_REGISTRY: SlideConfig[] = [
   { id: 's9', number: 10, title: 'Specifika žáků 8G (Metafora)', chapter: 'Nadaní žáci', component: Slide09_GiftedInfographic },
   { id: 's10', number: 11, title: 'Podpora nadání v ŠVP', chapter: 'Nadaní žáci', component: Slide10_GiftedSupport },
   { id: 's11', number: 12, title: 'Klíčové změny v RVP', chapter: 'Stavební kameny', component: Slide11_KeyChanges },
-  { id: 's12', number: 13, title: 'Klíčové kompetence jako most', chapter: 'Kompetence', component: Slide12_BridgeCompetencies },
-  { id: 's12b', number: 14, title: 'Prohlédnout RVP (Portál)', chapter: 'Portál RVP', component: Slide12b_RvpPortal },
+  { id: 's12b', number: 13, title: 'Prohlédnout RVP (Portál)', chapter: 'Portál RVP', component: Slide12b_RvpPortal },
+  { id: 's12', number: 14, title: 'Klíčové kompetence jako most', chapter: 'Kompetence', component: Slide12_BridgeCompetencies },
   { id: 's13', number: 15, title: 'Týmová aktivita (Timer)', chapter: 'Workshop', component: Slide13_TeamActivity },
   { id: 's14', number: 16, title: 'Integrace předmětů', chapter: 'Synergia', component: Slide14_SubjectIntegration },
   { id: 's15', number: 17, title: 'Podpora přechodu mezi stupni', chapter: 'Peer-mentoring', component: Slide15_PeerMentoring },
