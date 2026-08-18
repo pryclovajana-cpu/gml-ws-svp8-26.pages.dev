@@ -98,7 +98,7 @@ export const Slide09_GiftedInfographic: React.FC = () => {
               <span className="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-gml-green-700">
                 <EditableText id="s9_gml_label" defaultText="GML 8G • Třída 30 žáků" />
               </span>
-              <span className="px-2.5 py-0.5 bg-gml-green-600 text-white text-[10px] font-extrabold rounded-md shadow-2xs">
+              <span className="px-2.5 py-0.5 bg-gml-green-100 text-gml-green-800 text-[10px] font-extrabold rounded-md border border-gml-green-200">
                 <EditableText id="s9_gml_tag" defaultText="GML Osmileté gymnázium" />
               </span>
             </div>
@@ -137,7 +137,7 @@ export const Slide09_GiftedInfographic: React.FC = () => {
       </div>
 
       {/* Bottom Key Takeaway */}
-      <div className="p-3.5 sm:p-4 bg-gml-green-600 text-white rounded-2xl text-center text-xs sm:text-sm font-bold shadow-md">
+      <div className="p-3.5 sm:p-4 bg-gml-green-50 border border-gml-green-200 rounded-2xl text-center text-xs sm:text-sm text-gml-slate-900 font-bold shadow-2xs">
         <EditableText
           id="s9_takeaway"
           defaultText="Důsledek pro ŠVP 8G: Naše učivo nemůže být pouhým „opakováním ZŠ“. Potřebujeme hloubku, gradaci úloh a rozvoj kritického myšlení."
