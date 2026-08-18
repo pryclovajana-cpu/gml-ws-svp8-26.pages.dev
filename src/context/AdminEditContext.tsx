@@ -26,14 +26,20 @@ export const AdminEditProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
   const [textMap, setTextMap] = useState<EditableContentMap>(() => {
     if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        try {
-          return JSON.parse(saved);
-        } catch (e) {
-          console.error('Failed to parse saved slide text edits', e);
+      let combined: EditableContentMap = {};
+      try {
+        const v1 = localStorage.getItem('gml_slide_text_edits_v1');
+        if (v1) {
+          combined = { ...combined, ...JSON.parse(v1) };
         }
-      }
+      } catch (e) {}
+      try {
+        const v2 = localStorage.getItem('gml_slide_text_edits_v2');
+        if (v2) {
+          combined = { ...combined, ...JSON.parse(v2) };
+        }
+      } catch (e) {}
+      return combined;
     }
     return {};
   });
@@ -89,14 +95,22 @@ export const AdminEditProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const updateEditableText = (id: string, newText: string) => {
     setTextMap((prev) => {
       const updated = { ...prev, [id]: newText };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+      try {
+        localStorage.setItem('gml_slide_text_edits_v1', JSON.stringify(updated));
+        localStorage.setItem('gml_slide_text_edits_v2', JSON.stringify(updated));
+      } catch (e) {
+        console.error('Failed to save slide text edits', e);
+      }
       return updated;
     });
   };
 
   const resetAllEditableTexts = () => {
     setTextMap({});
-    localStorage.removeItem(STORAGE_KEY);
+    try {
+      localStorage.removeItem('gml_slide_text_edits_v1');
+      localStorage.removeItem('gml_slide_text_edits_v2');
+    } catch (e) {}
   };
 
   const getAllEditsJson = (): string => {
