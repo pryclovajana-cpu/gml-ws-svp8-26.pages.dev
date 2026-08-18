@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { Lock, X, Check, KeyRound, Eye, EyeOff } from 'lucide-react';
 import { EditableContentMap } from '../types';
 
 interface AdminEditContextType {
@@ -15,10 +16,35 @@ interface AdminEditContextType {
 const NTFY_TEXT_TOPIC = 'gml_ws_svp8_26_text_sync_v4';
 const NTFY_TEXT_URL = `https://ntfy.sh/${NTFY_TEXT_TOPIC}`;
 
+const ACCEPTED_PASSWORDS = ['admin', '2026', 'gml', 'lerch', '1234'];
+
+// Helper to convert Czech keyboard number row (ěščřžýáíé) to standard digits
+const normalizePassword = (input: string): string => {
+  const czMap: Record<string, string> = {
+    '+': '1', '1': '1',
+    'ě': '2', '2': '2',
+    'š': '3', '3': '3',
+    'č': '4', '4': '4',
+    'ř': '5', '5': '5',
+    'ž': '6', '6': '6',
+    'ý': '7', '7': '7',
+    'á': '8', '8': '8',
+    'í': '9', '9': '9',
+    'é': '0', '0': '0',
+  };
+  const trimmed = input.trim().toLowerCase();
+  const converted = trimmed.split('').map(ch => czMap[ch] || ch).join('');
+  return converted;
+};
+
 const AdminEditContext = createContext<AdminEditContextType | undefined>(undefined);
 
 export const AdminEditProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isAdminMode, setIsAdminMode] = useState<boolean>(false);
+  const [showPasswordModal, setShowPasswordModal] = useState<boolean>(false);
+  const [passwordInput, setPasswordInput] = useState<string>('');
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [passwordError, setPasswordError] = useState<boolean>(false);
 
   const [textMap, setTextMap] = useState<EditableContentMap>(() => {
     if (typeof window !== 'undefined') {
@@ -89,7 +115,36 @@ export const AdminEditProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   };
 
   const requestToggle = () => {
-    setIsAdminMode((prev) => !prev);
+    if (isAdminMode) {
+      // Exit admin mode without asking for password
+      setIsAdminMode(false);
+    } else {
+      // Open password modal
+      setPasswordInput('');
+      setPasswordError(false);
+      setShowPasswordModal(true);
+    }
+  };
+
+  const handlePasswordSubmit = (e?: React.FormEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    const clean = passwordInput.trim().toLowerCase();
+    const normalized = normalizePassword(passwordInput);
+
+    if (
+      ACCEPTED_PASSWORDS.includes(clean) ||
+      ACCEPTED_PASSWORDS.includes(normalized)
+    ) {
+      setIsAdminMode(true);
+      setShowPasswordModal(false);
+      setPasswordError(false);
+      setPasswordInput('');
+    } else {
+      setPasswordError(true);
+    }
   };
 
   // Global shortcut handler: Ctrl + Shift + E
@@ -102,7 +157,7 @@ export const AdminEditProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  }, [isAdminMode]);
 
   // Sync to body class for CSS highlighting
   useEffect(() => {
@@ -158,6 +213,107 @@ export const AdminEditProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       }}
     >
       {children}
+
+      {/* Password Modal Dialog */}
+      {showPasswordModal && (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm select-none animate-fade-in"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              setShowPasswordModal(false);
+            }
+          }}
+        >
+          <div
+            className="bg-white max-w-sm w-full rounded-3xl shadow-2xl border border-gml-green-200 p-6 space-y-4 relative"
+            onClick={(e) => e.stopPropagation()}
+            onKeyDown={(e) => {
+              if (e.key === 'Escape') {
+                setShowPasswordModal(false);
+              }
+            }}
+          >
+            <div className="flex items-center justify-between border-b border-gray-100 pb-3">
+              <div className="flex items-center gap-2.5">
+                <div className="p-2 bg-gml-yellow-100 text-gml-yellow-900 rounded-xl">
+                  <Lock className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-extrabold font-display text-gml-slate-900 leading-tight">
+                    Režim úprav prezentace
+                  </h3>
+                  <p className="text-[11px] text-gray-500 font-medium">Zadejte heslo prezentujícího</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowPasswordModal(false)}
+                className="p-1.5 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-all cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handlePasswordSubmit} className="space-y-3 pt-1">
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-gray-700 block">
+                  Heslo (např. <code className="bg-gray-100 px-1 py-0.5 rounded text-gml-green-800 font-mono">admin</code> nebo <code className="bg-gray-100 px-1 py-0.5 rounded text-gml-green-800 font-mono">2026</code>):
+                </label>
+                <div className="relative">
+                  <KeyRound className="w-4 h-4 absolute left-3.5 top-3.5 text-gray-400" />
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    autoFocus
+                    placeholder="Zadejte admin nebo 2026..."
+                    value={passwordInput}
+                    onChange={(e) => {
+                      setPasswordInput(e.target.value);
+                      if (passwordError) setPasswordError(false);
+                    }}
+                    onKeyDown={(e) => {
+                      e.stopPropagation();
+                    }}
+                    className={`w-full pl-10 pr-10 py-2.5 bg-gray-50 border rounded-2xl text-sm focus:outline-none focus:bg-white transition-all font-medium ${
+                      passwordError
+                        ? 'border-red-400 ring-2 ring-red-200 bg-red-50/50'
+                        : 'border-gray-200 focus:ring-2 focus:ring-gml-green-500'
+                    }`}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-3 text-gray-400 hover:text-gray-600 p-0.5 cursor-pointer"
+                    title={showPassword ? 'Skrýt heslo' : 'Zobrazit heslo'}
+                  >
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+                {passwordError && (
+                  <p className="text-xs font-bold text-red-600 pt-0.5 animate-bounce">
+                    Nesprávné heslo. Zadejte prosím <b>admin</b> nebo <b>2026</b>.
+                  </p>
+                )}
+              </div>
+
+              <div className="flex items-center gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowPasswordModal(false)}
+                  className="flex-1 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs rounded-xl transition-all cursor-pointer"
+                >
+                  Zrušit
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 py-2.5 bg-gml-green-600 hover:bg-gml-green-700 text-white font-bold text-xs rounded-xl transition-all shadow-md cursor-pointer flex items-center justify-center gap-1.5"
+                >
+                  <Check className="w-4 h-4" /> Odemknout
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </AdminEditContext.Provider>
   );
 };
