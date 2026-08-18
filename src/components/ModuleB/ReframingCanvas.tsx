@@ -97,7 +97,7 @@ export const ReframingCanvas: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-100 pb-4 z-20">
         <div className="space-y-1">
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold font-display text-gml-slate-900">
-            <EditableText id="s5_title" defaultText="Přeformátování obav" />
+            <EditableText id="s5_title" defaultText="Přerámování obav" />
           </h2>
           <p className="text-xs sm:text-sm text-gray-500 font-medium">
             <EditableText

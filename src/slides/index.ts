@@ -36,7 +36,7 @@ export const SLIDES_REGISTRY: SlideConfig[] = [
   { id: 's2', number: 3, title: 'Rychlé seznámení s publikem', chapter: 'Úvod & Naladění', component: Slide02_Icebreaker },
   { id: 's3', number: 4, title: 'Záplava pojmů nového RVP', chapter: 'Kontext & Vstupní reflexe', component: Slide03_RvpBuzzwords },
   { id: 's4', number: 5, title: 'Vstupní živá anketa (1/2)', chapter: 'Kontext & Vstupní reflexe', component: Slide04_Poll1 },
-  { id: 's5', number: 6, title: 'Přeformátování obav (Reframing)', chapter: 'Vize & Postoj školy', component: Slide05_CanvasReframing },
+  { id: 's5', number: 6, title: 'Přerámování obav', chapter: 'Vize & Postoj školy', component: Slide05_CanvasReframing },
   { id: 's6', number: 7, title: '4 pilíře pro revizi ŠVP', chapter: 'Vize & Postoj školy', component: Slide06_WhyChange },
   { id: 's7', number: 8, title: 'Společná reflexe: Jaké má být ŠVP?', chapter: 'Vize & Postoj školy', component: Slide07_Reflection },
   { id: 's8', number: 9, title: 'Cílová skupina ŠVP', chapter: 'Práce s nadanými žáky', component: Slide08_TargetAudience },
