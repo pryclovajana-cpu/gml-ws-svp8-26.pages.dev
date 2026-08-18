@@ -106,10 +106,21 @@ export const App: React.FC = () => {
         return; // Ignore presentation shortcuts when user is typing text
       }
 
-      if (e.key === 'ArrowRight' || e.key === 'PageDown') {
+      if (
+        e.key === 'ArrowRight' ||
+        e.key === 'PageDown' ||
+        e.key === 'ArrowDown' ||
+        e.key === ' ' ||
+        e.code === 'Space' ||
+        e.key === 'Enter'
+      ) {
         e.preventDefault();
         goToNextSlide();
-      } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+      } else if (
+        e.key === 'ArrowLeft' ||
+        e.key === 'PageUp' ||
+        e.key === 'ArrowUp'
+      ) {
         e.preventDefault();
         goToPrevSlide();
       } else if (e.key === 'Home') {
