@@ -3,6 +3,7 @@ import { PollState, ScaleResponse, TextResponse } from '../types';
 const BROADCAST_CHANNEL_NAME = 'gml_workshop_poll_sync_v3';
 const STORAGE_KEY_POLL1 = 'gml_poll1_live_state_v3';
 const STORAGE_KEY_POLL2 = 'gml_poll2_live_state_v3';
+const STORAGE_KEY_LEADERSHIP = 'gml_leadership_feedback_state_v3';
 const NTFY_TOPIC = 'gml_ws_svp8_26_sync_live';
 const NTFY_BASE_URL = `https://ntfy.sh/${NTFY_TOPIC}`;
 
@@ -45,6 +46,8 @@ class RealtimeService {
           this.notifyListeners('poll1', this.getPollState('poll1'));
         } else if (e.key === STORAGE_KEY_POLL2) {
           this.notifyListeners('poll2', this.getPollState('poll2'));
+        } else if (e.key === STORAGE_KEY_LEADERSHIP) {
+          this.notifyListeners('leadership', this.getPollState('leadership'));
         }
       });
     }
@@ -141,6 +144,7 @@ class RealtimeService {
   }
 
   private getStorageKey(pollId: string): string {
+    if (pollId === 'leadership') return STORAGE_KEY_LEADERSHIP;
     return pollId === 'poll2' ? STORAGE_KEY_POLL2 : STORAGE_KEY_POLL1;
   }
 
@@ -153,6 +157,20 @@ class RealtimeService {
       } catch (e) {
         console.error('Error parsing poll state', e);
       }
+    }
+
+    if (pollId === 'leadership') {
+      const initialLeadershipState: PollState = {
+        textResponses: [
+          { id: 'l1', text: 'Více společného času pro setkávání předmětových komisí během školního roku.', timestamp: Date.now() - 300000 },
+          { id: 'l2', text: 'Metodickou podporu při formulaci nových očekávaných výstupů učení (OVU).', timestamp: Date.now() - 240000 },
+          { id: 'l3', text: 'Jasný harmonogram a garanci, že ŠVP nebude příliš často administrativně měněno.', timestamp: Date.now() - 180000 },
+          { id: 'l4', text: 'Snížení úvazku či finanční ohodnocení pro koordinátory tvorby ŠVP.', timestamp: Date.now() - 120000 },
+        ],
+        scaleResponses: [],
+      };
+      this.savePollState(pollId, initialLeadershipState, false);
+      return initialLeadershipState;
     }
 
     const emptyDefaultState: PollState = {
