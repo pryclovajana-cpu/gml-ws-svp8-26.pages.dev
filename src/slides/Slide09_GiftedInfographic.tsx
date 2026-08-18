@@ -37,12 +37,12 @@ export const Slide09_GiftedInfographic: React.FC = () => {
       {/* Top Header */}
       <div className="space-y-1 border-b border-gray-100 pb-3 sm:pb-4">
         <span className="text-xs font-bold uppercase tracking-widest text-gml-green-700 block">
-          <EditableText id="s9_badge" defaultText="Specifikum žákovské populace" />
+          <EditableText id="s9_badge" defaultText="SPECIFIKUM ŽÁKŮ NA GML" />
         </span>
         <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold font-display text-gml-slate-900">
           <EditableText
             id="s9_title"
-            defaultText="Proč nemůžeme učit stejně jako na běžné základní škole?"
+            defaultText="Proč bychom měli učit jinak?"
           />
         </h2>
       </div>
@@ -54,19 +54,19 @@ export const Slide09_GiftedInfographic: React.FC = () => {
           <div>
             <div className="flex items-center justify-between mb-2">
               <span className="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-gray-500">
-                <EditableText id="s9_zs_label" defaultText="Běžná ZŠ • Třída 30 žáků" />
+                <EditableText id="s9_zs_label" defaultText="BĚŽNÁ ZŠ • TŘÍDA 30 ŽÁKŮ" />
               </span>
               <span className="px-2.5 py-0.5 bg-gray-200 text-gray-700 text-[10px] font-extrabold rounded-md">
-                <EditableText id="s9_zs_tag" defaultText="Základní škola" />
+                <EditableText id="s9_zs_tag" defaultText="2. stupeň ZŠ" />
               </span>
             </div>
             <h3 className="text-lg sm:text-xl font-bold font-display text-gml-slate-900">
-              <EditableText id="s9_zs_heading" defaultText="1–2 mimořádně nadaní žáci" />
+              <EditableText id="s9_zs_heading" defaultText="1 mimořádně nadaný žák" />
             </h3>
             <p className="text-xs text-gray-500 mt-1 font-medium">
               <EditableText
                 id="s9_zs_desc"
-                defaultText="Učitel vysvětluje základní učivo pro většinu třídy. Nadaný žák často čeká, nudí se nebo dostává práci navíc."
+                defaultText="Mimořádně nadaný žák potvrzený PPP, nadání potvrzení v ŠPP."
               />
             </p>
           </div>
@@ -96,7 +96,7 @@ export const Slide09_GiftedInfographic: React.FC = () => {
           <div>
             <div className="flex items-center justify-between mb-2">
               <span className="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-gml-green-700">
-                <EditableText id="s9_gml_label" defaultText="GML 8G • Třída 30 žáků" />
+                <EditableText id="s9_gml_label" defaultText="GML 8G • TŘÍDA 30 ŽÁKŮ" />
               </span>
               <span className="px-2.5 py-0.5 bg-gml-green-100 text-gml-green-800 text-[10px] font-extrabold rounded-md border border-gml-green-200">
                 <EditableText id="s9_gml_tag" defaultText="GML Osmileté gymnázium" />
@@ -109,7 +109,7 @@ export const Slide09_GiftedInfographic: React.FC = () => {
             <p className="text-xs text-gml-slate-700 mt-1 font-medium">
               <EditableText
                 id="s9_gml_desc"
-                defaultText="Všichni žáci prošli přísným výběrem. Každý v lavici má vysoký intelektový potenciál a očekává výzvy!"
+                defaultText="Předpokládáme mimořádné nadání na základě náročného přijímacího řízení a skvělých výsledků žáků."
               />
             </p>
           </div>
