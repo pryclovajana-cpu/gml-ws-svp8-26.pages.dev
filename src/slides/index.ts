@@ -15,6 +15,7 @@ import { Slide09_GiftedInfographic } from './Slide09_GiftedInfographic';
 import { Slide10_GiftedSupport } from './Slide10_GiftedSupport';
 import { Slide11_KeyChanges } from './Slide11_KeyChanges';
 import { Slide12_BridgeCompetencies } from './Slide12_BridgeCompetencies';
+import { Slide12b_RvpPortal } from './Slide12b_RvpPortal';
 import { Slide13_TeamActivity } from './Slide13_TeamActivity';
 import { Slide14_SubjectIntegration } from './Slide14_SubjectIntegration';
 import { Slide15_PeerMentoring } from './Slide15_PeerMentoring';
@@ -43,12 +44,13 @@ export const SLIDES_REGISTRY: SlideConfig[] = [
   { id: 's10', number: 11, title: 'Podpora nadání v ŠVP', chapter: 'Nadaní žáci', component: Slide10_GiftedSupport },
   { id: 's11', number: 12, title: 'Klíčové změny v RVP', chapter: 'Stavební kameny', component: Slide11_KeyChanges },
   { id: 's12', number: 13, title: 'Klíčové kompetence jako most', chapter: 'Kompetence', component: Slide12_BridgeCompetencies },
-  { id: 's13', number: 14, title: 'Týmová aktivita (Timer)', chapter: 'Workshop', component: Slide13_TeamActivity },
-  { id: 's14', number: 15, title: 'Integrace předmětů', chapter: 'Synergia', component: Slide14_SubjectIntegration },
-  { id: 's15', number: 16, title: 'Podpora přechodu mezi stupni', chapter: 'Peer-mentoring', component: Slide15_PeerMentoring },
-  { id: 's16', number: 17, title: 'Nároky, diferenciace a zodpovědnost', chapter: 'Diskuse', component: Slide16_DemandsAccordion },
-  { id: 's17', number: 18, title: 'Zpětná vazba pro vedení', chapter: 'Vedení školy', component: Slide17_LeadershipFeedback },
-  { id: 's18', number: 19, title: 'Akční plán – další kroky', chapter: 'Akční plán', component: Slide18_ActionPlanMatrix },
-  { id: 's19', number: 20, title: 'Výstupní evaluace', chapter: 'Evaluace 2', component: Slide19_Poll2Evaluation },
-  { id: 's20', number: 21, title: 'Závěr a poděkování', chapter: 'Závěr', component: Slide20_Conclusion },
+  { id: 's12b', number: 14, title: 'Prohlédnout RVP (Portál)', chapter: 'Portál RVP', component: Slide12b_RvpPortal },
+  { id: 's13', number: 15, title: 'Týmová aktivita (Timer)', chapter: 'Workshop', component: Slide13_TeamActivity },
+  { id: 's14', number: 16, title: 'Integrace předmětů', chapter: 'Synergia', component: Slide14_SubjectIntegration },
+  { id: 's15', number: 17, title: 'Podpora přechodu mezi stupni', chapter: 'Peer-mentoring', component: Slide15_PeerMentoring },
+  { id: 's16', number: 18, title: 'Nároky, diferenciace a zodpovědnost', chapter: 'Diskuse', component: Slide16_DemandsAccordion },
+  { id: 's17', number: 19, title: 'Zpětná vazba pro vedení', chapter: 'Vedení školy', component: Slide17_LeadershipFeedback },
+  { id: 's18', number: 20, title: 'Akční plán – další kroky', chapter: 'Akční plán', component: Slide18_ActionPlanMatrix },
+  { id: 's19', number: 21, title: 'Výstupní evaluace', chapter: 'Evaluace 2', component: Slide19_Poll2Evaluation },
+  { id: 's20', number: 22, title: 'Závěr a poděkování', chapter: 'Závěr', component: Slide20_Conclusion },
 ];
