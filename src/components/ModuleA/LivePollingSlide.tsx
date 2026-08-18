@@ -22,11 +22,6 @@ export const LivePollingSlide: React.FC<LivePollingSlideProps> = ({
   const [showComparison, setShowComparison] = useState<boolean>(true);
 
   useEffect(() => {
-    realtimeService.fetchCloudHistory();
-    const interval = setInterval(() => {
-      realtimeService.fetchCloudHistory();
-    }, 2000);
-
     const unsubscribe = realtimeService.subscribe(pollId, (newState) => {
       setPollState(newState);
     });
@@ -39,7 +34,6 @@ export const LivePollingSlide: React.FC<LivePollingSlideProps> = ({
     }
 
     return () => {
-      clearInterval(interval);
       unsubscribe();
       if (unsubscribePoll1) unsubscribePoll1();
     };
