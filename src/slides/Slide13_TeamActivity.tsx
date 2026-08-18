@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Clock, Play, Pause, RotateCcw, Users, CheckCircle2, FileText } from 'lucide-react';
+import { Clock, Play, Pause, RotateCcw, FileText, CheckCircle2 } from 'lucide-react';
 import { EditableText } from '../context/AdminEditContext';
 
 export const Slide13_TeamActivity: React.FC = () => {
@@ -42,10 +42,10 @@ export const Slide13_TeamActivity: React.FC = () => {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-gray-100 pb-3 sm:pb-4">
         <div className="space-y-1">
           <span className="text-xs font-bold uppercase tracking-widest text-gml-green-700 block">
-            <EditableText id="s13_badge" defaultText="Týmová aktivita s odpočtem" />
+            <EditableText id="s13_badge" defaultText="TÝMOVÁ AKTIVITA" />
           </span>
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold font-display text-gml-slate-900">
-            <EditableText id="s13_title" defaultText="Práce v předmětových komisích" />
+            <EditableText id="s13_title" defaultText="Klíčové kompetence napříč předměty" />
           </h2>
         </div>
 
@@ -115,7 +115,7 @@ export const Slide13_TeamActivity: React.FC = () => {
               <p>
                 <EditableText
                   id="s13_step1"
-                  defaultText="Zvolte 1 konkrétní klíčovou kompetenci či gramotnost z nového RVP ZV."
+                  defaultText="Na listu před sebou vidíte jednu klíčovou kompetenci rozepsanou na OVU."
                 />
               </p>
             </div>
@@ -126,7 +126,7 @@ export const Slide13_TeamActivity: React.FC = () => {
               <p>
                 <EditableText
                   id="s13_step2"
-                  defaultText="Formulujte 1 ukázkový očekávaný výstup (OVU) pro kvartu (konec 9. ročníku)."
+                  defaultText="Popište, jak ve Vašem předmětu vypadá úroveň splněno z pohledu žáka."
                 />
               </p>
             </div>
@@ -137,7 +137,18 @@ export const Slide13_TeamActivity: React.FC = () => {
               <p>
                 <EditableText
                   id="s13_step3"
-                  defaultText="Navrhněte 1 konkrétní badatelskou / tvůrčí aktivitu, kterou žák kompetenci prokáže."
+                  defaultText="Navrhněte konkrétní aktivitu, která vede žáka k naplnění OVU."
+                />
+              </p>
+            </div>
+            <div className="flex items-start gap-2.5">
+              <span className="w-6 h-6 rounded-lg bg-purple-100 text-purple-800 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">
+                4
+              </span>
+              <p>
+                <EditableText
+                  id="s13_step4"
+                  defaultText="Pracujte v pětiminutových intervalech a pošlete své výsledky dál."
                 />
               </p>
             </div>
@@ -172,14 +183,12 @@ export const Slide13_TeamActivity: React.FC = () => {
         </div>
       </div>
 
-      {/* Bottom Bold Takeaway Hint */}
-      <div className="p-3.5 sm:p-4 bg-gml-green-50 border border-gml-green-200 rounded-2xl text-center shadow-2xs">
-        <p className="text-xs sm:text-sm md:text-base font-extrabold text-gml-slate-900 tracking-wide">
-          <EditableText
-            id="s13_bottom_hint"
-            defaultText="Skvělá příležitost pro posílení role třídního učitele."
-          />
-        </p>
+      {/* Bottom Hint */}
+      <div className="p-3.5 sm:p-4 bg-gray-50 border border-gray-200 rounded-2xl text-center text-xs sm:text-sm font-semibold text-gml-slate-800">
+        <EditableText
+          id="s13_bottom_hint"
+          defaultText="Výstupy komisí poslouží jako přímý podklad pro koordinační tým ŠVP."
+        />
       </div>
     </div>
   );
