@@ -26,11 +26,16 @@ export const AdminEditProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
   const [textMap, setTextMap] = useState<EditableContentMap>(() => {
     if (typeof window !== 'undefined') {
+      let combined: EditableContentMap = {};
       try {
-        // Automatically purge old stale draft overrides so all devices show 100% identical GitHub master code
-        localStorage.removeItem('gml_slide_text_edits_v1');
-        localStorage.removeItem('gml_slide_text_edits_v2');
+        const v1 = localStorage.getItem('gml_slide_text_edits_v1');
+        if (v1) combined = { ...combined, ...JSON.parse(v1) };
       } catch (e) {}
+      try {
+        const v2 = localStorage.getItem('gml_slide_text_edits_v2');
+        if (v2) combined = { ...combined, ...JSON.parse(v2) };
+      } catch (e) {}
+      return combined;
     }
     return {};
   });
