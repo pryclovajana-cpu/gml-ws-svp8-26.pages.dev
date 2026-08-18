@@ -148,9 +148,9 @@ export const App: React.FC = () => {
           <div className="absolute bottom-10 left-1/4 w-[500px] h-[500px] bg-gml-yellow-400/5 rounded-full blur-3xl" />
         </div>
 
-        {/* Expansive Presentation Viewport - Sized for Widescreen Height */}
-        <main className="flex-1 w-full min-h-[calc(100dvh-56px)] md:h-[calc(100dvh-60px)] pb-14 md:pb-16 relative flex items-center justify-center p-1.5 sm:p-3 md:p-4">
-          <div className="w-full max-w-[1560px] h-full min-h-[600px] max-h-[960px] bg-white rounded-2xl md:rounded-3xl border border-gray-200/90 shadow-xl shadow-slate-900/5 overflow-y-auto md:overflow-hidden flex flex-col transition-all duration-300">
+        {/* Expansive Presentation Viewport - Sized for Widescreen & Mobile Devices */}
+        <main className="flex-1 w-full min-h-[calc(100dvh-56px)] md:h-[calc(100dvh-60px)] pb-14 md:pb-16 relative flex items-center justify-center p-1 sm:p-2 md:p-4">
+          <div className="w-full max-w-[1560px] h-full min-h-[500px] sm:min-h-[580px] max-h-[960px] bg-white rounded-2xl md:rounded-3xl border border-gray-200/90 shadow-xl shadow-slate-900/5 overflow-y-auto md:overflow-hidden flex flex-col transition-all duration-300">
             <div className="w-full h-full flex-1 flex flex-col">
               <SlideComponent onNext={goToNextSlide} />
             </div>
