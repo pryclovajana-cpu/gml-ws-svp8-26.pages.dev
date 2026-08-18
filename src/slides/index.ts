@@ -18,8 +18,8 @@ import { Slide12b_RvpPortal } from './Slide12b_RvpPortal';
 import { Slide12_BridgeCompetencies } from './Slide12_BridgeCompetencies';
 import { Slide13_TeamActivity } from './Slide13_TeamActivity';
 import { Slide14_SubjectIntegration } from './Slide14_SubjectIntegration';
-import { Slide15_PeerMentoring } from './Slide15_PeerMentoring';
 import { Slide15b_GeographyPdf } from './Slide15b_GeographyPdf';
+import { Slide15_PeerMentoring } from './Slide15_PeerMentoring';
 import { Slide16_DemandsAccordion } from './Slide16_DemandsAccordion';
 import { Slide17_LeadershipFeedback } from './Slide17_LeadershipFeedback';
 import { Slide18_ActionPlanMatrix } from './Slide18_ActionPlanMatrix';
@@ -48,8 +48,8 @@ export const SLIDES_REGISTRY: SlideConfig[] = [
   { id: 's12', number: 14, title: 'Klíčové kompetence jako most', chapter: 'Kompetence', component: Slide12_BridgeCompetencies },
   { id: 's13', number: 15, title: 'Týmová aktivita (Timer)', chapter: 'Workshop', component: Slide13_TeamActivity },
   { id: 's14', number: 16, title: 'Integrace předmětů', chapter: 'Synergia', component: Slide14_SubjectIntegration },
-  { id: 's15', number: 17, title: 'Podpora přechodu mezi stupni', chapter: 'Peer-mentoring', component: Slide15_PeerMentoring },
-  { id: 's15b', number: 18, title: 'Oborové kurikulum – Geografie (PDF)', chapter: 'Kurikulum Geografie', component: Slide15b_GeographyPdf },
+  { id: 's15b', number: 17, title: 'Oborové kurikulum – Geografie (PDF)', chapter: 'Kurikulum Geografie', component: Slide15b_GeographyPdf },
+  { id: 's15', number: 18, title: 'Podpora přechodu mezi stupni', chapter: 'Peer-mentoring', component: Slide15_PeerMentoring },
   { id: 's16', number: 19, title: 'Nároky, diferenciace a zodpovědnost', chapter: 'Diskuse', component: Slide16_DemandsAccordion },
   { id: 's17', number: 20, title: 'Zpětná vazba pro vedení', chapter: 'Vedení školy', component: Slide17_LeadershipFeedback },
   { id: 's18', number: 21, title: 'Akční plán – další kroky', chapter: 'Akční plán', component: Slide18_ActionPlanMatrix },
