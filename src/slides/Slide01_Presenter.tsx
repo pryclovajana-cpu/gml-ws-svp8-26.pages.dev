@@ -5,15 +5,15 @@ export const Slide01_Presenter: React.FC = () => {
   const leftMilestones = [
     {
       id: 'l1',
-      badge: 'Revize RVP',
-      title: 'NPI ČR',
-      desc: 'Účast na revizích RVP ZV a systémové podpoře nadaných žáků v ČR.',
+      badge: 'Vzdělání',
+      title: 'FF MU',
+      desc: 'Pedagogické obory na ÚPV FF MU',
     },
     {
       id: 'l2',
-      badge: 'Inovace výuky',
-      title: 'Svět vzdělání, z. s.',
-      desc: 'Tvorba inovativních výukových metodik a rozvojové programy pro nadané děti.',
+      badge: 'Revize RVP',
+      title: 'NPI ČR',
+      desc: 'Účast na revizích RVP ZV a systémové podpoře nadaných žáků v ČR.',
     },
   ];
 
@@ -21,20 +21,20 @@ export const Slide01_Presenter: React.FC = () => {
     {
       id: 'r1',
       badge: 'Mentoring změn',
-      title: 'Mentor ve školách (AFREŠ)',
-      desc: 'Provázení školních týmů změnami, nastavením inkluzivní kultury a podporou talentu.',
+      title: 'Mentoring ve školách (AFREŠ)',
+      desc: 'Provázení školních týmů změnami, nastavením systematické podpory nadání.',
     },
     {
       id: 'r2',
-      badge: 'Živá praxe',
-      title: 'Praxe na ZŠ (1 den v týdnu)',
-      desc: 'Stálý přímý kontakt se žáky a školní realitou – přístup s „nohama na zemi“.',
+      badge: 'Praxe ve škole',
+      title: 'Výuka na ZŠ v Olomouci',
+      desc: 'Výuka aktuálně na 1. stupni ZŠ',
     },
     {
       id: 'r3',
-      badge: 'Průvodce pro GML',
-      title: 'Facilitace nového ŠVP 8G',
-      desc: 'Podpora sborovny a předmětových komisí při tvorbě kurikula šitého na míru gymnáziu.',
+      badge: 'Inovace výuky',
+      title: 'Svět vzdělání, z. s.',
+      desc: 'Vedení týmu výuky, návštěvy a mentoring ve výuce v partnerských školách, podpora učitelů při práci s nadanými žáky',
     },
   ];
 
@@ -43,12 +43,12 @@ export const Slide01_Presenter: React.FC = () => {
       {/* Header */}
       <div className="space-y-1 border-b border-gray-100 pb-3 sm:pb-4">
         <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold font-display text-gml-slate-900">
-          <EditableText id="s1_title" defaultText="Mgr. et Mgr. Jana Pryclová" />
+          <EditableText id="s1_title" defaultText="Jana Pryclová" />
         </h2>
         <p className="text-xs sm:text-sm text-gray-500 font-medium">
           <EditableText
             id="s1_subtitle"
-            defaultText="Průvodkyně workshopem v souladu s novým RVP ZV a formativním přístupem k rozvoji školy"
+            defaultText="lektorka"
           />
         </p>
       </div>
