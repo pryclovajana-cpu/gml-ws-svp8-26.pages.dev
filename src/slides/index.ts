@@ -20,7 +20,6 @@ import { Slide13_TeamActivity } from './Slide13_TeamActivity';
 import { Slide14_SubjectIntegration } from './Slide14_SubjectIntegration';
 import { Slide15b_GeographyPdf } from './Slide15b_GeographyPdf';
 import { Slide15_PeerMentoring } from './Slide15_PeerMentoring';
-import { Slide16_DemandsAccordion } from './Slide16_DemandsAccordion';
 import { Slide17_LeadershipFeedback } from './Slide17_LeadershipFeedback';
 import { Slide18_ActionPlanMatrix } from './Slide18_ActionPlanMatrix';
 import { Slide19_Poll2Evaluation } from './Slide19_Poll2Evaluation';
@@ -50,9 +49,8 @@ export const SLIDES_REGISTRY: SlideConfig[] = [
   { id: 's14', number: 16, title: 'Integrace předmětů', chapter: 'Synergia', component: Slide14_SubjectIntegration },
   { id: 's15b', number: 17, title: 'Oborové kurikulum – Geografie (PDF)', chapter: 'Kurikulum Geografie', component: Slide15b_GeographyPdf },
   { id: 's15', number: 18, title: 'Podpora přechodu mezi stupni', chapter: 'Peer-mentoring', component: Slide15_PeerMentoring },
-  { id: 's16', number: 19, title: 'Nároky, diferenciace a zodpovědnost', chapter: 'Diskuse', component: Slide16_DemandsAccordion },
-  { id: 's17', number: 20, title: 'Zpětná vazba pro vedení', chapter: 'Vedení školy', component: Slide17_LeadershipFeedback },
-  { id: 's18', number: 21, title: 'Akční plán – další kroky', chapter: 'Akční plán', component: Slide18_ActionPlanMatrix },
-  { id: 's19', number: 22, title: 'Výstupní evaluace', chapter: 'Evaluace 2', component: Slide19_Poll2Evaluation },
-  { id: 's20', number: 23, title: 'Závěr a poděkování', chapter: 'Závěr', component: Slide20_Conclusion },
+  { id: 's17', number: 19, title: 'Zpětná vazba pro vedení', chapter: 'Vedení školy', component: Slide17_LeadershipFeedback },
+  { id: 's18', number: 20, title: 'Akční plán – další kroky', chapter: 'Akční plán', component: Slide18_ActionPlanMatrix },
+  { id: 's19', number: 21, title: 'Výstupní evaluace', chapter: 'Evaluace 2', component: Slide19_Poll2Evaluation },
+  { id: 's20', number: 22, title: 'Závěr a poděkování', chapter: 'Závěr', component: Slide20_Conclusion },
 ];
