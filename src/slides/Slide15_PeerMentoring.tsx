@@ -8,7 +8,7 @@ export const Slide15_PeerMentoring: React.FC = () => {
       {/* Top Header */}
       <div className="space-y-1 border-b border-gray-100 pb-3 sm:pb-4">
         <span className="text-xs font-bold uppercase tracking-widest text-gml-green-700 block">
-          Přechod mezi stupni
+          <EditableText id="s15_badge" defaultText="Přechod mezi stupni" />
         </span>
         <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold font-display text-gml-slate-900">
           <EditableText id="s15_title" defaultText="Peer-mentoring: Vertikální provázání školy" />
@@ -22,15 +22,18 @@ export const Slide15_PeerMentoring: React.FC = () => {
           <div className="md:col-span-5 bg-gradient-to-br from-gml-green-600 to-gml-green-700 text-white p-5 sm:p-6 rounded-3xl shadow-lg space-y-2 sm:space-y-3">
             <div className="flex items-center justify-between">
               <span className="px-3 py-1 bg-gml-yellow-300 text-gml-slate-900 text-[10px] font-extrabold rounded-full uppercase">
-                Mentorský ročník
+                <EditableText id="s15_mentor_badge" defaultText="Mentorský ročník" />
               </span>
               <HeartHandshake className="w-5 h-5 sm:w-6 sm:h-6 text-gml-yellow-200" />
             </div>
             <h3 className="text-xl sm:text-2xl font-bold font-display">
-              Kvarta / Kvinta & 1. ročník 4G
+              <EditableText id="s15_mentor_heading" defaultText="Kvarta / Kvinta & 1. ročník 4G" />
             </h3>
             <p className="text-xs sm:text-sm text-gml-green-100 leading-relaxed font-medium">
-              Zkušení studenti přebírají roli průvodců. Pomáhají nováčkům s adaptací na školní nároky, orientací v budově i studijními strategiemi.
+              <EditableText
+                id="s15_mentor_desc"
+                defaultText="Zkušení studenti přebírají roli průvodců. Pomáhají nováčkům s adaptací na školní nároky, orientací v budově i studijními strategiemi."
+              />
             </p>
           </div>
 
@@ -40,7 +43,7 @@ export const Slide15_PeerMentoring: React.FC = () => {
               <ArrowDownUp className="w-5 h-5 sm:w-6 sm:h-6" />
             </div>
             <span className="text-[10px] sm:text-xs font-extrabold uppercase tracking-widest text-gml-green-800">
-              Patronát & Podpora
+              <EditableText id="s15_arrow_label" defaultText="Patronát & Podpora" />
             </span>
           </div>
 
@@ -48,15 +51,18 @@ export const Slide15_PeerMentoring: React.FC = () => {
           <div className="md:col-span-5 bg-white p-5 sm:p-6 rounded-3xl border-2 border-gml-green-200 shadow-md space-y-2 sm:space-y-3">
             <div className="flex items-center justify-between">
               <span className="px-3 py-1 bg-gml-green-100 text-gml-green-800 text-[10px] font-extrabold rounded-full uppercase">
-                Adaptující se ročník
+                <EditableText id="s15_mentee_badge" defaultText="Adaptující se ročník" />
               </span>
               <UserPlus className="w-5 h-5 sm:w-6 sm:h-6 text-gml-green-600" />
             </div>
             <h3 className="text-xl sm:text-2xl font-bold font-display text-gml-slate-900">
-              Primáni & Noví žáci
+              <EditableText id="s15_mentee_heading" defaultText="Primáni & Noví žáci" />
             </h3>
             <p className="text-xs sm:text-sm text-gray-600 leading-relaxed font-medium">
-              Rychlejší zapadnutí do komunity GML, snížení stresu z přechodu na gymnázium a navázání mezigeneračních přátelství.
+              <EditableText
+                id="s15_mentee_desc"
+                defaultText="Rychlejší zapadnutí do komunity GML, snížení stresu z přechodu na gymnázium a navázání mezigeneračních přátelství."
+              />
             </p>
           </div>
         </div>
@@ -66,32 +72,49 @@ export const Slide15_PeerMentoring: React.FC = () => {
           <div className="p-3.5 sm:p-4 bg-gml-green-50/60 rounded-2xl border border-gml-green-200 flex items-start gap-3">
             <Shield className="w-4 h-4 sm:w-5 sm:h-5 text-gml-green-600 shrink-0 mt-0.5" />
             <div>
-              <h4 className="text-xs sm:text-sm font-bold text-gml-slate-900">Bezpečné klima třídy</h4>
-              <p className="text-[11px] sm:text-xs text-gray-600 mt-0.5">Prevence šikany a úzkostí z nových nároků výuky.</p>
+              <h4 className="text-xs sm:text-sm font-bold text-gml-slate-900">
+                <EditableText id="s15_p1_title" defaultText="Bezpečné klima třídy" />
+              </h4>
+              <p className="text-[11px] sm:text-xs text-gray-600 mt-0.5">
+                <EditableText id="s15_p1_desc" defaultText="Prevence šikany a úzkostí z nových nároků výuky." />
+              </p>
             </div>
           </div>
 
           <div className="p-3.5 sm:p-4 bg-gml-yellow-50/60 rounded-2xl border border-gml-yellow-300 flex items-start gap-3">
             <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-gml-yellow-700 shrink-0 mt-0.5" />
             <div>
-              <h4 className="text-xs sm:text-sm font-bold text-gml-slate-900">Rozvoj soft-skills</h4>
-              <p className="text-[11px] sm:text-xs text-gray-600 mt-0.5">Starší žáci si trénují empatii, vedení lidí a komunikaci.</p>
+              <h4 className="text-xs sm:text-sm font-bold text-gml-slate-900">
+                <EditableText id="s15_p2_title" defaultText="Rozvoj soft-skills" />
+              </h4>
+              <p className="text-[11px] sm:text-xs text-gray-600 mt-0.5">
+                <EditableText id="s15_p2_desc" defaultText="Starší žáci si trénují empatii, vedení lidí a komunikaci." />
+              </p>
             </div>
           </div>
 
           <div className="p-3.5 sm:p-4 bg-blue-50/60 rounded-2xl border border-blue-200 flex items-start gap-3">
             <HeartHandshake className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 shrink-0 mt-0.5" />
             <div>
-              <h4 className="text-xs sm:text-sm font-bold text-gml-slate-900">Jednotná kultura GML</h4>
-              <p className="text-[11px] sm:text-xs text-gray-600 mt-0.5">Předávání tradic a hodnot gymnázia mezi studenty.</p>
+              <h4 className="text-xs sm:text-sm font-bold text-gml-slate-900">
+                <EditableText id="s15_p3_title" defaultText="Jednotná kultura GML" />
+              </h4>
+              <p className="text-[11px] sm:text-xs text-gray-600 mt-0.5">
+                <EditableText id="s15_p3_desc" defaultText="Předávání tradic a hodnot gymnázia mezi studenty." />
+              </p>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Bottom Hint */}
-      <div className="p-3.5 sm:p-4 bg-white border border-gray-200 rounded-xl text-center text-xs sm:text-sm text-gml-slate-800 font-semibold">
-        Peer-mentoring je zakotven přímo v ŠVP jako součást průřezových témat a klíčových kompetencí.
+      {/* Bottom Bold Takeaway Hint */}
+      <div className="p-3.5 sm:p-4 bg-gml-green-50 border border-gml-green-200 rounded-2xl text-center shadow-2xs">
+        <p className="text-xs sm:text-sm md:text-base font-extrabold text-gml-slate-900 tracking-wide">
+          <EditableText
+            id="s15_bottom_hint"
+            defaultText="Skvělá příležitost pro posílení role třídního učitele."
+          />
+        </p>
       </div>
     </div>
   );
