@@ -32,7 +32,7 @@ export const Slide14_SubjectIntegration: React.FC = () => {
       {/* Top Header */}
       <div className="space-y-1 border-b border-gray-100 pb-3 sm:pb-4">
         <span className="text-xs font-bold uppercase tracking-widest text-gml-green-700 block">
-          Integrace a společná témata
+          <EditableText id="s14_badge" defaultText="Integrace a společná témata" />
         </span>
         <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold font-display text-gml-slate-900">
           <EditableText id="s14_title" defaultText="Jak smysluplně propojit předměty na GML?" />
@@ -67,11 +67,6 @@ export const Slide14_SubjectIntegration: React.FC = () => {
             </div>
           );
         })}
-      </div>
-
-      {/* Bottom Takeaway */}
-      <div className="p-3.5 sm:p-4 bg-white border border-gray-200 rounded-2xl text-center text-xs sm:text-sm text-gml-slate-800 font-semibold">
-        Cílem není spojovat předměty nasilu, ale odstranit duplicity a podpořit učení v souvislostech.
       </div>
     </div>
   );
