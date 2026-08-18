@@ -49,14 +49,10 @@ export const Slide00_Title: React.FC<{ onNext: () => void }> = ({ onNext }) => {
       </div>
 
       {/* Footer Navigation CTA */}
-      <div className="flex justify-between items-center z-10 pt-4 border-t border-gray-100">
-        <span className="text-xs text-gray-400 font-medium hidden sm:inline">
-          Stiskněte <kbd className="px-1.5 py-0.5 bg-gray-100 rounded text-gray-600 font-mono text-[11px]">Mezerník</kbd> pro pokračování
-        </span>
-
+      <div className="flex justify-end items-center z-10 pt-4 border-t border-gray-100">
         <button
           onClick={onNext}
-          className="w-full sm:w-auto px-5 py-2.5 bg-gml-green-600 text-white font-bold text-xs rounded-xl hover:bg-gml-green-700 transition-all flex items-center justify-center gap-2 shadow-sm"
+          className="w-full sm:w-auto px-5 py-2.5 bg-gml-green-600 text-white font-bold text-xs rounded-xl hover:bg-gml-green-700 transition-all flex items-center justify-center gap-2 shadow-sm cursor-pointer"
         >
           Zahájit prezentaci <ArrowRight className="w-4 h-4" />
         </button>
