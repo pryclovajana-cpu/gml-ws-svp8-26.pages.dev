@@ -65,13 +65,6 @@ export const Slide20_Conclusion: React.FC = () => {
             defaultText="Přeji celému pedagogickému sboru GML mnoho inspirace a radosti při tvorbě nového ŠVP 8G."
           />
         </p>
-
-        <button
-          onClick={triggerConfetti}
-          className="px-6 py-3 bg-gml-green-600 text-white font-bold text-xs uppercase tracking-widest rounded-xl hover:bg-gml-green-700 transition-all inline-flex items-center gap-2 cursor-pointer shadow-md"
-        >
-          <Sparkles className="w-4 h-4" /> Oslavit zakončení workshopu 🎉
-        </button>
       </div>
 
       {/* Bottom Contact Linear Grid */}
