@@ -70,17 +70,25 @@ export const LivePollingSlide: React.FC<LivePollingSlideProps> = ({
     ? 'Výstupní hodnocení důvěry v nový ŠVP (1–100)'
     : 'Jakou důvěru na škále 1–100 máte v to, že nový ŠVP pomůže ke kvalitnějšímu vzdělávání na GML?';
 
-  // Format SVG path string safely
+  // Normalize SVG curve height dynamically to render a clear, beautiful wave peak
+  const maxY = stats.points && stats.points.length > 0
+    ? Math.max(...stats.points.map((p) => p.y || 0), 0.001)
+    : 0.001;
+
   const currentPathD = stats.points && stats.points.length > 0
-    ? `M 0,100 ${stats.points.map((p) => `L ${p.x.toFixed(1)},${(100 - (p.y || 0) * 0.75).toFixed(1)}`).join(' ')} L 100,100 Z`
+    ? `M 0,100 ${stats.points.map((p) => `L ${p.x.toFixed(1)},${(100 - ((p.y || 0) / maxY) * 75).toFixed(1)}`).join(' ')} L 100,100 Z`
     : '';
 
   const currentStrokeD = stats.points && stats.points.length > 0
-    ? `M 0,100 ${stats.points.map((p) => `L ${p.x.toFixed(1)},${(100 - (p.y || 0) * 0.75).toFixed(1)}`).join(' ')}`
+    ? `M 0,100 ${stats.points.map((p) => `L ${p.x.toFixed(1)},${(100 - ((p.y || 0) / maxY) * 75).toFixed(1)}`).join(' ')}`
     : '';
 
+  const compMaxY = statsPoll1.points && statsPoll1.points.length > 0
+    ? Math.max(...statsPoll1.points.map((p) => p.y || 0), 0.001)
+    : 0.001;
+
   const compPathD = statsPoll1.points && statsPoll1.points.length > 0
-    ? `M 0,100 ${statsPoll1.points.map((p) => `L ${p.x.toFixed(1)},${(100 - (p.y || 0) * 0.70).toFixed(1)}`).join(' ')} L 100,100 Z`
+    ? `M 0,100 ${statsPoll1.points.map((p) => `L ${p.x.toFixed(1)},${(100 - ((p.y || 0) / compMaxY) * 65).toFixed(1)}`).join(' ')} L 100,100 Z`
     : '';
 
   return (
