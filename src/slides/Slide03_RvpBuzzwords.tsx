@@ -452,7 +452,7 @@ export const Slide03_RvpBuzzwords: React.FC = () => {
         <p className="text-xs sm:text-sm text-gray-500 font-medium">
           <EditableText
             id="s3_subtitle"
-            defaultText="Desítky konceptů padají na jednu velkou hromadu – na vrcholu všech stojí jediné: ŠVP"
+            defaultText="Máme velkou hromadu hop hop hop..."
           />
         </p>
       </div>

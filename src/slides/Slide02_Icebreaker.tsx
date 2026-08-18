@@ -4,13 +4,13 @@ import { EditableText } from '../context/AdminEditContext';
 
 export const Slide02_Icebreaker: React.FC = () => {
   const items = [
-    { id: 'i1', text: 'Kdo se podílel na tvorbě ŠVP 4G?', category: 'ŠVP Tým', color: 'border-gml-green-400 bg-gml-green-50' },
+    { id: 'i1', text: 'Kdo se v uplynulém roce podílel na tvorbě ŠVP 4G?', category: 'ŠVP Tým', color: 'border-gml-green-400 bg-gml-green-50' },
     { id: 'i2', text: 'Kdo učí jazyky?', category: 'Cizí i český jazyk', color: 'border-gml-yellow-400 bg-gml-yellow-50' },
     { id: 'i3', text: 'Kdo učí přírodní vědy?', category: 'Matematika, Fyzika, Chemie, Bio', color: 'border-blue-300 bg-blue-50' },
-    { id: 'i4', text: 'Kdo učíte humanitní obory?', category: 'Dějepis, ZSV, Zeměpis', color: 'border-purple-300 bg-purple-50' },
-    { id: 'i5', text: 'Kdo tělocvik?', category: 'Tělesná výchova & Sport', color: 'border-orange-300 bg-orange-50' },
-    { id: 'i6', text: 'Kdo informatiku a technické předměty?', category: 'ICT & Robotika', color: 'border-teal-300 bg-teal-50' },
-    { id: 'i7', text: 'Kdo výchovy?', category: 'Hudební & Výtvarná výchova', color: 'border-pink-300 bg-pink-50' },
+    { id: 'i4', text: 'Kdo učí humanitní předměty?', category: 'Dějepis, ZSV, Zeměpis', color: 'border-purple-300 bg-purple-50' },
+    { id: 'i5', text: 'Kdo učí tělesnou výchovu?', category: 'Tělesná výchova & Sport', color: 'border-orange-300 bg-orange-50' },
+    { id: 'i6', text: 'Kdo učí informatiku a technické předměty?', category: 'ICT & Robotika', color: 'border-teal-300 bg-teal-50' },
+    { id: 'i7', text: 'Kdo učí výchovy?', category: 'Hudební & Výtvarná výchova', color: 'border-pink-300 bg-pink-50' },
   ];
 
   const [visibleCount, setVisibleCount] = useState<number>(1);
@@ -32,7 +32,7 @@ export const Slide02_Icebreaker: React.FC = () => {
             Rychlé seznámení
           </span>
           <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold font-display text-gml-slate-900">
-            <EditableText id="s2_title" defaultText="Dnešní složení sborovny" />
+            <EditableText id="s2_title" defaultText="Seznámení s týmem školy" />
           </h2>
         </div>
 

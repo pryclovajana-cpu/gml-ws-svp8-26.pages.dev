@@ -6,30 +6,30 @@ export const Slide01b_Schedule: React.FC = () => {
   const scheduleItems = [
     {
       id: 'sch1',
-      time: '9:30 – 10:45',
+      time: '9:30 – 10:30',
       title: 'První blok',
       subtitle: 'Východiska & Vize ŠVP 8G',
-      desc: 'Kontext změn RVP ZV, specifika žáků osmiletého gymnázia, živá reflexe a společná vize.',
+      desc: 'Kontext změn RVP ZV, specifika žáků osmiletého gymnázia',
       icon: Sparkles,
       color: '#16a34a', // GML Green
       accent: 'text-gml-green-700',
     },
     {
       id: 'sch2',
-      time: '10:45 – 11:00',
+      time: '10:30 – 10:45',
       title: 'Přestávka',
       subtitle: 'Čas pro wellbeing & kávu',
-      desc: 'Prostor pro občerstvení, kávu a neformální rozhovory napříč předmětovými komisemi.',
+      desc: 'Prostor pro občerstvení, odpočinek a vstřebání všech informací',
       icon: Coffee,
       color: '#eab308', // Warm Yellow
       accent: 'text-gml-yellow-700',
     },
     {
       id: 'sch3',
-      time: '11:00 – 12:00',
+      time: '10:45 – 12:00',
       title: 'Druhý blok',
       subtitle: 'Týmová práce & Akční plán',
-      desc: 'Práce v předmětových komisích na klíčových kompetencích, integrace témat, výstupní evaluace.',
+      desc: 'Práce ve skupinách na klíčových kompetencích, integrace témat, výstupní evaluace.',
       icon: Clock,
       color: '#0284c7', // River Blue
       accent: 'text-blue-700',
@@ -41,7 +41,7 @@ export const Slide01b_Schedule: React.FC = () => {
       {/* Header */}
       <div className="space-y-1 border-b border-gray-100 pb-3 sm:pb-4">
         <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold font-display text-gml-slate-900">
-          <EditableText id="sch_title" defaultText="Časový harmonogram dnešního setkání" />
+          <EditableText id="sch_title" defaultText="Časový harmonogram" />
         </h2>
         <p className="text-xs sm:text-sm text-gray-500 font-medium">
           <EditableText
@@ -101,25 +101,27 @@ export const Slide01b_Schedule: React.FC = () => {
                     <Icon className="w-5 h-5 sm:w-6 sm:h-6" />
                   </div>
                   <div>
-                    <span className="text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-widest block">
+                    <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-gray-400 block">
                       Časový úsek
                     </span>
-                    <span className="text-sm sm:text-base md:text-lg font-extrabold text-gml-slate-900 font-mono">
+                    <span className="text-base sm:text-lg font-extrabold text-gml-slate-900 font-display">
                       <EditableText id={`sch_${item.id}_time`} defaultText={item.time} />
                     </span>
                   </div>
                 </div>
 
-                {/* 2. Structured Card Container */}
-                <div className="flex-1 bg-white p-4 sm:p-6 rounded-3xl border border-gray-200/90 shadow-sm transition-all duration-300 group-hover:shadow-md group-hover:border-gray-300 flex flex-col justify-between space-y-3">
-                  <div className="space-y-1.5">
-                    <span className={`text-xs sm:text-xs font-bold uppercase tracking-wider block ${item.accent}`}>
+                {/* 2. Glass Card Container with Content */}
+                <div className="flex-1 bg-white/95 backdrop-blur-md p-5 sm:p-6 rounded-3xl border border-gray-200/80 shadow-md hover:shadow-xl transition-all duration-300 flex flex-col justify-between space-y-3 hover:-translate-y-1">
+                  <div className="space-y-2">
+                    <span
+                      className={`text-[11px] font-extrabold uppercase tracking-widest block ${item.accent}`}
+                    >
                       <EditableText id={`sch_${item.id}_title`} defaultText={item.title} />
                     </span>
-                    <h3 className="text-base sm:text-lg md:text-xl font-bold font-display text-gml-slate-900 leading-snug">
+                    <h3 className="text-base sm:text-lg font-bold font-display text-gml-slate-900 leading-snug">
                       <EditableText id={`sch_${item.id}_subtitle`} defaultText={item.subtitle} />
                     </h3>
-                    <p className="text-xs sm:text-sm text-gray-600 leading-relaxed font-medium pt-1">
+                    <p className="text-xs sm:text-sm text-gray-600 leading-relaxed font-medium">
                       <EditableText id={`sch_${item.id}_desc`} defaultText={item.desc} />
                     </p>
                   </div>
@@ -128,6 +130,12 @@ export const Slide01b_Schedule: React.FC = () => {
             );
           })}
         </div>
+      </div>
+
+      {/* Footer Info */}
+      <div className="flex items-center justify-between text-xs text-gray-400 border-t border-gray-100 pt-3">
+        <span>Harmonogram je orientační a přizpůsobí se dynamice diskuze</span>
+        <span className="font-semibold text-gml-green-700">Gymnázium Matyáše Lercha</span>
       </div>
     </div>
   );
