@@ -257,14 +257,14 @@ export const AdminEditProvider: React.FC<{ children: React.ReactNode }> = ({ chi
             <form onSubmit={handlePasswordSubmit} className="space-y-3 pt-1">
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-gray-700 block">
-                  Heslo (např. <code className="bg-gray-100 px-1 py-0.5 rounded text-gml-green-800 font-mono">admin</code> nebo <code className="bg-gray-100 px-1 py-0.5 rounded text-gml-green-800 font-mono">2026</code>):
+                  Heslo:
                 </label>
                 <div className="relative">
                   <KeyRound className="w-4 h-4 absolute left-3.5 top-3.5 text-gray-400" />
                   <input
                     type={showPassword ? 'text' : 'password'}
                     autoFocus
-                    placeholder="Zadejte admin nebo 2026..."
+                    placeholder="Zadejte heslo..."
                     value={passwordInput}
                     onChange={(e) => {
                       setPasswordInput(e.target.value);
@@ -290,7 +290,7 @@ export const AdminEditProvider: React.FC<{ children: React.ReactNode }> = ({ chi
                 </div>
                 {passwordError && (
                   <p className="text-xs font-bold text-red-600 pt-0.5 animate-bounce">
-                    Nesprávné heslo. Zadejte prosím <b>admin</b> nebo <b>2026</b>.
+                    Nesprávné heslo. Zkuste to znovu.
                   </p>
                 )}
               </div>
