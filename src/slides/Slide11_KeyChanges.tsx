@@ -37,7 +37,7 @@ export const Slide11_KeyChanges: React.FC = () => {
       title: '4. OSV jako vzdělávací obor',
       badge: 'NOVÝ OBOR RVP',
       badgeColor: 'bg-pink-500 text-white',
-      desc: 'Vzdělávací obor Osobnostní a sociální výchova zahrnuje také etický a kariérový rozvoj žáka. Kontinuálně, průběžně na 1. a 2. stupni, systematicky a komplexně rozvíjí potřebné znalosti, dovednosti, hodnoty, postoje, které explicitně podporují odolnost žáka vedoucí ke zvládání běžných i náročných životních situací.',
+      desc: 'Vzdělávací obor Osobnostní a sociální výchova zahrnuje také etický a kariérový rozvoj žáka. Kontinuálně, průběžně na 1. a 2. stupni, systematicky a komplexně rozvíjí potřebné znalosti, dovednosti, hodnoty, postoje, které explicitně podporují odolnost žáka vedoucí ke zvládání běžných i náročných životních situací. PŘÍLEŽITOST PRO TŘÍDNÍ UČITELE.',
       color: 'border-pink-300 bg-pink-50/70 text-pink-900',
     },
   ];

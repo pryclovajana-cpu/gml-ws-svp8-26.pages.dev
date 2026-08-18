@@ -94,7 +94,7 @@ export const Slide10_GiftedSupport: React.FC = () => {
             <p className="text-xs sm:text-sm text-gray-600 leading-relaxed font-medium">
               <EditableText
                 id="s10_practice_desc"
-                defaultText="Osvědčený model podpory mimořádně nadaných žáků, mezipředmětových bloků a individuálních studijních plánů."
+                defaultText="Část z kapitoly hodnocení. Ukázka je ze základní školy, která má zpracovanou koncepci podpory nadání."
               />
             </p>
           </div>

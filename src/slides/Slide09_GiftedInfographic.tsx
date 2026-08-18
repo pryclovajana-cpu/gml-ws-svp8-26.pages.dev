@@ -37,7 +37,7 @@ export const Slide09_GiftedInfographic: React.FC = () => {
       {/* Top Header */}
       <div className="space-y-1 border-b border-gray-100 pb-3 sm:pb-4">
         <span className="text-xs font-bold uppercase tracking-widest text-gml-green-700 block">
-          <EditableText id="s9_badge" defaultText="SPECIFIKUM ŽÁKŮ NA GML" />
+          <EditableText id="s9_badge" defaultText="ŽÁCI NA GML" />
         </span>
         <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold font-display text-gml-slate-900">
           <EditableText
@@ -66,7 +66,7 @@ export const Slide09_GiftedInfographic: React.FC = () => {
             <p className="text-xs text-gray-500 mt-1 font-medium">
               <EditableText
                 id="s9_zs_desc"
-                defaultText="Mimořádně nadaný žák potvrzený PPP, nadání potvrzení v ŠPP."
+                defaultText="Mimořádně nadaný žák potvrzený PPP, nadání potvrzeni v ŠPP."
               />
             </p>
           </div>
@@ -103,13 +103,13 @@ export const Slide09_GiftedInfographic: React.FC = () => {
               </span>
             </div>
             <h3 className="text-lg sm:text-xl font-bold font-display text-gml-slate-900 flex items-center gap-2">
-              <EditableText id="s9_gml_heading" defaultText="Všech 30 žáků je nadaných!" />{' '}
+              <EditableText id="s9_gml_heading" defaultText="Všech 30 žáků je  mimořádně nadaných!" />{' '}
               <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-gml-yellow-600 shrink-0" />
             </h3>
             <p className="text-xs text-gml-slate-700 mt-1 font-medium">
               <EditableText
                 id="s9_gml_desc"
-                defaultText="Předpokládáme mimořádné nadání na základě náročného přijímacího řízení a skvělých výsledků žáků."
+                defaultText="Předpokládáme mimořádné nadání na základě výsledků přijímacího řízení."
               />
             </p>
           </div>

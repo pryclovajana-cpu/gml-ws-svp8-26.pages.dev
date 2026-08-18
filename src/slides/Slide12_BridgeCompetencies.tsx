@@ -11,7 +11,7 @@ export const Slide12_BridgeCompetencies: React.FC = () => {
           <EditableText id="s12_badge" defaultText="Klíčové kompetence jako most" />
         </span>
         <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold font-display text-gml-slate-900">
-          <EditableText id="s12_title" defaultText="Propojení nižšího a vyššího stupně gymnázia" />
+          <EditableText id="s12_title" defaultText="Propojení nižšího a vyššího stupně gymnázia skrze KLÍČOVÉ KOMPETENCE" />
         </h2>
       </div>
 
@@ -71,7 +71,7 @@ export const Slide12_BridgeCompetencies: React.FC = () => {
               <p className="text-xs sm:text-sm text-gray-600 leading-relaxed font-medium">
                 <EditableText
                   id="s12_right_desc"
-                  defaultText="Akademická hloubka, maturitní profilace, SOČ, kritická analýza a příprava na univerzitu."
+                  defaultText="Akademická hloubka, maturitní profilace, SOČ, kritická analýza a příprava na univerzity."
                 />
               </p>
             </div>
