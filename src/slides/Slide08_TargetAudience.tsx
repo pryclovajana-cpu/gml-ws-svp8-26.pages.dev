@@ -5,11 +5,11 @@ import { EditableText, useAdminEdit } from '../context/AdminEditContext';
 export const Slide08_TargetAudience: React.FC = () => {
   const { isAdminMode } = useAdminEdit();
 
-  // Card 3 starts hidden (or each card can be toggled by clicking)
+  // All 3 cards revealed by default
   const [revealedCards, setRevealedCards] = useState<Record<string, boolean>>({
     t1: true,
     t2: true,
-    t3: false, // Hidden until clicked
+    t3: true,
   });
 
   const toggleCard = (id: string) => {

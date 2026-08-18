@@ -102,7 +102,7 @@ export const ReframingCanvas: React.FC = () => {
           <p className="text-xs sm:text-sm text-gray-500 font-medium">
             <EditableText
               id="s5_subtitle"
-              defaultText="Kliknutím na obraz proměníte atmosféru – od deštivé skepse k rozkvetlé příležitosti"
+              defaultText="...od deštivé skepse k rozkvetlé příležitosti."
             />
           </p>
         </div>

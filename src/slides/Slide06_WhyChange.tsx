@@ -5,13 +5,13 @@ export const Slide06_WhyChange: React.FC = () => {
   const pillars = [
     {
       id: 'p1',
-      title: '1. Zadání státu & Pilotáž RVP ZV 2028',
-      desc: 'Unikátní příležitost si změnu rok vyzkoušet nanečisto – silný argument a náskok před ČŠI.',
+      title: '1. Zadání státu RVP ZV',
+      desc: 'Unikátní příležitost si změnu rok vyzkoušet než bude zavedena povinnost – silný argument a náskok před ČŠI.',
       accent: 'border-gml-green-600',
     },
     {
       id: 'p2',
-      title: '2. Vazba na ŠVP 4G',
+      title: '2. Vazba na nové ŠVP 4G',
       desc: 'Osmileté gymnázium (nižší stupeň 8G) nemůže zaostávat za standardem a dynamikou čtyřletého stupně.',
       accent: 'border-gml-yellow-500',
     },
@@ -23,8 +23,8 @@ export const Slide06_WhyChange: React.FC = () => {
     },
     {
       id: 'p4',
-      title: '4. Nástup AI & Nová kognitivní éra',
-      desc: 'Změna paradigmatu ve vzdělávání: Přesun od pouhého pamatování faktů k analytickému a kritickému myšlení.',
+      title: '4. Nástup AI a nová kognitivní éra',
+      desc: 'Změna paradigmatu ve vzdělávání: Přesun od pouhého pamatování faktů k analyticko-syntetickému a kritickému myšlení.',
       accent: 'border-purple-500',
     },
   ];
@@ -41,7 +41,7 @@ export const Slide06_WhyChange: React.FC = () => {
         </h2>
       </div>
 
-      {/* Main Grid: Left 4 Pillars (Enlarged Fonts) & Right Transparent GML Monolith Line Art */}
+      {/* Main Grid: Left 4 Pillars & Right Illustration */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center my-auto py-2 sm:py-4">
         <div className="lg:col-span-7 grid grid-cols-1 md:grid-cols-2 gap-x-6 sm:gap-x-8 gap-y-5 sm:gap-y-7">
           {pillars.map((p) => (
@@ -75,7 +75,7 @@ export const Slide06_WhyChange: React.FC = () => {
           <p className="text-sm sm:text-base md:text-lg font-bold text-gml-slate-900">
             <EditableText
               id="s6_open_question"
-              defaultText="Proč ještě? Jaké další důvody vnímáte přímo ve vašich aprobačních předmětech?"
+              defaultText="Jaké další důvody vnímáte vy? Co Vám jako klíčový bod chybí?"
             />
           </p>
         </div>
