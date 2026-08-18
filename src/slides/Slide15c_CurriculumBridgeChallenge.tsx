@@ -68,14 +68,6 @@ export const Slide15c_CurriculumBridgeChallenge: React.FC = () => {
           </div>
         </div>
       </div>
-
-      {/* Bottom Takeaway Hint */}
-      <div className="p-3.5 sm:p-4 bg-gray-50 border border-gray-200 rounded-2xl text-center text-xs sm:text-sm font-semibold text-gml-slate-800">
-        <EditableText
-          id="s15c_bottom_hint"
-          defaultText="Provázanost obou stupňů zajistí plynulý přechod žáků bez zbytečných duplicit nebo naopak propadů v nárocích."
-        />
-      </div>
     </div>
   );
 };
