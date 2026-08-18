@@ -6,14 +6,8 @@ import { AdminEditProvider } from './context/AdminEditContext';
 import { MobileVoteView } from './components/ModuleA/MobileVoteView';
 
 export const App: React.FC = () => {
-  // Check if mobile vote view route is active (/#/vote)
-  const [isMobileVoteRoute, setIsMobileVoteRoute] = useState<boolean>(() => {
-    return window.location.hash.startsWith('#/vote');
-  });
-
-  // Read initial slide from URL hash (e.g. #/slide/3) or localStorage
-  const getInitialSlideIndex = (): number => {
-    try {
+  const [currentSlideIndex, setCurrentSlideIndex] = useState<number>(() => {
+    if (typeof window !== 'undefined') {
       const hash = window.location.hash;
       if (hash.startsWith('#/slide/')) {
         const slideNum = parseInt(hash.replace('#/slide/', ''), 10);
@@ -21,23 +15,19 @@ export const App: React.FC = () => {
           return slideNum;
         }
       }
-      const saved = localStorage.getItem('gml_active_slide_index_v1');
-      if (saved !== null) {
-        const parsed = parseInt(saved, 10);
-        if (!isNaN(parsed) && parsed >= 0 && parsed < SLIDES_REGISTRY.length) {
-          return parsed;
-        }
-      }
-    } catch (e) {
-      // Fallback to slide 0
     }
     return 0;
-  };
+  });
 
-  const [currentSlideIndex, setCurrentSlideIndex] = useState<number>(getInitialSlideIndex);
   const [isDrawerOpen, setIsDrawerOpen] = useState<boolean>(false);
+  const [isMobileVoteRoute, setIsMobileVoteRoute] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      return window.location.hash.startsWith('#/vote');
+    }
+    return false;
+  });
 
-  // Sync hash changes
+  // Listen to hash changes for direct deep-linking & mobile voter route
   useEffect(() => {
     const handleHashChange = () => {
       const hash = window.location.hash;
@@ -45,6 +35,7 @@ export const App: React.FC = () => {
         setIsMobileVoteRoute(true);
         return;
       }
+
       setIsMobileVoteRoute(false);
 
       if (hash.startsWith('#/slide/')) {
@@ -157,9 +148,9 @@ export const App: React.FC = () => {
           <div className="absolute bottom-10 left-1/4 w-[500px] h-[500px] bg-gml-yellow-400/5 rounded-full blur-3xl" />
         </div>
 
-        {/* Centered Presentation Viewport - Sized with Light Neutral Backdrop */}
-        <main className="flex-1 w-full min-h-[calc(100dvh-64px)] md:h-[calc(100dvh-68px)] pb-18 md:pb-20 relative flex items-center justify-center p-2 sm:p-4 md:p-6 lg:p-8">
-          <div className="w-full max-w-[1440px] h-full max-h-[880px] bg-white rounded-2xl md:rounded-3xl border border-gray-200/90 shadow-xl shadow-slate-900/5 overflow-y-auto md:overflow-hidden flex flex-col transition-all duration-300">
+        {/* Expansive Presentation Viewport - Sized for Widescreen Height */}
+        <main className="flex-1 w-full min-h-[calc(100dvh-56px)] md:h-[calc(100dvh-60px)] pb-14 md:pb-16 relative flex items-center justify-center p-1.5 sm:p-3 md:p-4">
+          <div className="w-full max-w-[1560px] h-full max-h-[960px] bg-white rounded-2xl md:rounded-3xl border border-gray-200/90 shadow-xl shadow-slate-900/5 overflow-y-auto md:overflow-hidden flex flex-col transition-all duration-300">
             <SlideComponent onNext={goToNextSlide} />
           </div>
         </main>
@@ -178,10 +169,13 @@ export const App: React.FC = () => {
         {/* Slide Drawer Overview */}
         <SlideDrawer
           isOpen={isDrawerOpen}
-          onClose={() => setIsDrawerOpen(false)}
           slides={SLIDES_REGISTRY}
-          currentSlide={currentSlideIndex}
-          onSelectSlide={goToSlide}
+          currentSlideIndex={currentSlideIndex}
+          onSelectSlide={(index) => {
+            goToSlide(index);
+            setIsDrawerOpen(false);
+          }}
+          onClose={() => setIsDrawerOpen(false)}
         />
       </div>
     </AdminEditProvider>
