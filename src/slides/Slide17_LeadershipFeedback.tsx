@@ -48,8 +48,8 @@ export const Slide17_LeadershipFeedback: React.FC = () => {
   };
 
   const voteUrl = typeof window !== 'undefined'
-    ? `${window.location.origin}${window.location.pathname}#/vote?poll=leadership`
-    : 'https://gml-ws-svp8-26.pages.dev/#/vote?poll=leadership';
+    ? `${window.location.origin}${window.location.pathname}#/vote/vedeni`
+    : 'https://gml-ws-svp8-26.pages.dev/#/vote/vedeni';
 
   return (
     <div className="w-full h-full flex flex-col justify-between p-6 sm:p-8 md:p-12 select-none bg-white">
@@ -95,7 +95,7 @@ export const Slide17_LeadershipFeedback: React.FC = () => {
                 Naskenujte telefonem
               </span>
               <span className="text-xs font-bold text-gml-slate-900 font-mono truncate">
-                gml-ws-svp8-26.pages.dev/#/vote
+                gml-ws-svp8-26.pages.dev/#/vote/vedeni
               </span>
               <a
                 href={voteUrl}

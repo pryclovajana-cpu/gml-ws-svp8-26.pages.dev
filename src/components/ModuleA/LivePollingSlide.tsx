@@ -45,9 +45,10 @@ export const LivePollingSlide: React.FC<LivePollingSlideProps> = ({
     };
   }, [pollId, isComparisonSlide]);
 
+  const pollRoute = pollId === 'poll1' ? 'anketa1' : 'anketa2';
   const voteUrl = typeof window !== 'undefined'
-    ? `${window.location.origin}${window.location.pathname}#/vote?poll=${pollId}`
-    : `https://gml-ws-svp8-26.pages.dev/#/vote?poll=${pollId}`;
+    ? `${window.location.origin}${window.location.pathname}#/vote/${pollRoute}`
+    : `https://gml-ws-svp8-26.pages.dev/#/vote/${pollRoute}`;
 
   const scaleValues = pollState.scaleResponses.map((r) => r.value);
   const stats = realtimeService.calculateGaussian(scaleValues);
@@ -105,7 +106,7 @@ export const LivePollingSlide: React.FC<LivePollingSlideProps> = ({
               Naskenujte telefonem
             </span>
             <span className="text-xs sm:text-sm font-extrabold text-gml-slate-900 font-mono truncate max-w-[220px] sm:max-w-none">
-              gml-ws-svp8-26.pages.dev/#/vote
+              gml-ws-svp8-26.pages.dev/#/vote/{pollRoute}
             </span>
             <a
               href={voteUrl}

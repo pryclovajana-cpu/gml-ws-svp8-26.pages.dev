@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Send, CheckCircle2, Sparkles, Sliders, MessageSquarePlus, RefreshCw } from 'lucide-react';
+import { Send, CheckCircle2, Sparkles, Sliders, MessageSquarePlus } from 'lucide-react';
 import { realtimeService } from '../../services/realtimeService';
 import { GmlLogo } from '../GmlLogo';
 
@@ -10,92 +10,104 @@ export const MobileVoteView: React.FC = () => {
   const [submittedText, setSubmittedText] = useState(false);
   const [submittedScale, setSubmittedScale] = useState(false);
 
-  // Read URL query parameter or hash if pollId specified
+  // Read URL query parameter or path to set the exact poll unambiguously
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const fullUrl = window.location.href.toLowerCase();
-      if (fullUrl.includes('poll=leadership') || fullUrl.includes('poll=vedeni') || fullUrl.includes('leadership')) {
+      if (fullUrl.includes('vedeni') || fullUrl.includes('leadership')) {
         setPollId('leadership');
-      } else if (fullUrl.includes('poll=poll2') || fullUrl.includes('poll2')) {
+      } else if (fullUrl.includes('anketa2') || fullUrl.includes('poll2')) {
         setPollId('poll2');
-      } else if (fullUrl.includes('poll=poll1') || fullUrl.includes('poll1')) {
+      } else if (fullUrl.includes('anketa1') || fullUrl.includes('poll1')) {
         setPollId('poll1');
       }
     }
   }, []);
 
-  const handleSendText = (e: React.FormEvent) => {
+  const handleSendText = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!textVote.trim()) return;
-    realtimeService.addTextVote(pollId, textVote);
-    setSubmittedText(true);
+    const textToSend = textVote.trim();
     setTextVote('');
+    setSubmittedText(true);
+    await realtimeService.addTextVote(pollId, textToSend);
     setTimeout(() => {
       setSubmittedText(false);
     }, 4000);
   };
 
-  const handleSendScale = (e: React.FormEvent) => {
+  const handleSendScale = async (e: React.FormEvent) => {
     e.preventDefault();
-    realtimeService.addScaleVote(pollId, scaleVote);
     setSubmittedScale(true);
+    await realtimeService.addScaleVote(pollId, scaleVote);
   };
 
   const isLeadership = pollId === 'leadership';
+  const isPoll1 = pollId === 'poll1';
+  const isPoll2 = pollId === 'poll2';
+
+  const getHeaderTitle = () => {
+    if (isLeadership) return 'Podnět pro vedení GML';
+    if (isPoll1) return 'Vstupní anketa (1/2)';
+    return 'Výstupní evaluace (2/2)';
+  };
 
   const getQuestionTitle = () => {
-    if (pollId === 'leadership') {
+    if (isLeadership) {
       return 'Co bych já konkrétně potřeboval/a od vedení za podporu při práci na novém ŠVP?';
     }
-    if (pollId === 'poll1') {
+    if (isPoll1) {
       return '1. Jak na Vás zkratky působí a jak jim rozumíte?';
     }
     return '1. Vaše závěrečné postřehy a zpětná vazba';
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gml-green-50 via-white to-gml-yellow-50 flex flex-col justify-between p-4 sm:p-6 select-none">
+    <div className="min-h-screen bg-gradient-to-b from-gml-green-50 via-white to-gml-yellow-50 flex flex-col justify-between p-4 sm:p-6 select-none font-sans">
       {/* Top Header */}
       <header className="flex flex-col items-center justify-center text-center pt-2 pb-4 border-b border-gml-green-100">
         <GmlLogo size="sm" showText={false} />
-        <h1 className="text-xl font-extrabold font-display text-gml-slate-900 mt-2">
-          {isLeadership ? 'Podnět pro vedení GML' : 'Živé hlasování z mobilu'}
+        <h1 className="text-xl sm:text-2xl font-extrabold font-display text-gml-slate-900 mt-2">
+          {getHeaderTitle()}
         </h1>
         <p className="text-xs text-gml-green-700 font-semibold mt-0.5">
-          Gymnázium Matyáše Lercha • Workshop 2026
+          Gymnázium Matyáše Lercha • Workshop 25. 8. 2026
         </p>
 
-        {/* Poll Switcher */}
-        <div className="flex flex-wrap items-center justify-center gap-1.5 mt-3 bg-white p-1 rounded-xl border border-gray-200 shadow-sm text-xs font-bold">
+        {/* Clear Switcher for Manual Override */}
+        <div className="flex items-center justify-center gap-1.5 mt-3 bg-white p-1 rounded-xl border border-gray-200 shadow-sm text-xs font-bold">
           <button
+            type="button"
             onClick={() => { setPollId('leadership'); setSubmittedText(false); setSubmittedScale(false); }}
-            className={`px-3 py-1.5 rounded-lg transition-all ${
-              pollId === 'leadership'
-                ? 'bg-gml-green-600 text-white shadow-sm'
+            className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+              isLeadership
+                ? 'bg-gml-yellow-500 text-white shadow-sm font-extrabold'
                 : 'text-gray-600 hover:text-gray-900'
             }`}
           >
-            Podnět vedení
+            Vedení
           </button>
           <button
+            type="button"
             onClick={() => { setPollId('poll1'); setSubmittedText(false); setSubmittedScale(false); }}
-            className={`px-3 py-1.5 rounded-lg transition-all ${
-              pollId === 'poll1'
-                ? 'bg-gml-green-600 text-white shadow-sm'
+            className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+              isPoll1
+                ? 'bg-gml-green-600 text-white shadow-sm font-extrabold'
                 : 'text-gray-600 hover:text-gray-900'
             }`}
           >
-            Anketa 1 (Úvod)
+            Anketa 1
           </button>
           <button
+            type="button"
             onClick={() => { setPollId('poll2'); setSubmittedText(false); setSubmittedScale(false); }}
-            className={`px-3 py-1.5 rounded-lg transition-all ${
-              pollId === 'poll2'
-                ? 'bg-gml-green-600 text-white shadow-sm'
+            className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+              isPoll2
+                ? 'bg-blue-600 text-white shadow-sm font-extrabold'
                 : 'text-gray-600 hover:text-gray-900'
             }`}
           >
-            Anketa 2 (Závěr)
+            Anketa 2
           </button>
         </div>
       </header>
@@ -103,7 +115,7 @@ export const MobileVoteView: React.FC = () => {
       {/* Main Form Content */}
       <main className="max-w-md w-full mx-auto my-auto space-y-5 py-4">
         {/* Section 1: Open Text Answer */}
-        <div className="bg-white p-5 rounded-3xl border border-gml-green-200 shadow-lg space-y-3">
+        <div className="bg-white p-5 sm:p-6 rounded-3xl border border-gml-green-200 shadow-lg space-y-3">
           <div className="flex items-center gap-2 text-gml-green-700">
             <MessageSquarePlus className="w-5 h-5 shrink-0" />
             <h2 className="font-display font-bold text-sm sm:text-base text-gml-slate-900 leading-snug">
@@ -147,11 +159,11 @@ export const MobileVoteView: React.FC = () => {
 
         {/* Section 2: Numerical Scale (Only for poll1 & poll2) */}
         {!isLeadership && (
-          <div className="bg-white p-5 rounded-3xl border border-gml-green-200 shadow-lg space-y-4">
+          <div className="bg-white p-5 sm:p-6 rounded-3xl border border-gml-green-200 shadow-lg space-y-4">
             <div className="flex items-center gap-2 text-gml-green-700">
               <Sliders className="w-5 h-5 shrink-0" />
               <h2 className="font-display font-bold text-sm sm:text-base text-gml-slate-900">
-                {pollId === 'poll1'
+                {isPoll1
                   ? '2. Vaše důvěra v revizi ŠVP (1–100 %)'
                   : '2. Závěrečná důvěra po workshopu (1–100 %)'}
               </h2>
