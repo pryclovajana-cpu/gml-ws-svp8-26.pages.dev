@@ -62,57 +62,53 @@ class RealtimeService {
     if (this.isSyncing) return;
     this.isSyncing = true;
 
-    for (const pollId of ['leadership', 'poll1', 'poll2']) {
-      const containerId = CLOUD_CONTAINERS[pollId];
-      if (!containerId) continue;
+    try {
+      await Promise.all(['leadership', 'poll1', 'poll2'].map(async (pollId) => {
+        const containerId = CLOUD_CONTAINERS[pollId];
+        if (!containerId) return;
 
-      try {
-        const res = await fetch(`https://api.restful-api.dev/objects/${containerId}`, {
-          cache: 'no-store',
-        });
-        if (res.ok) {
-          const json = await res.json();
-          if (json && json.data) {
-            const cloudText: TextResponse[] = json.data.textResponses || [];
-            const cloudScale: ScaleResponse[] = json.data.scaleResponses || [];
-            const local = this.getPollState(pollId);
+        try {
+          const res = await fetch(`https://api.restful-api.dev/objects/${containerId}`, {
+            cache: 'no-store',
+          });
+          if (res.ok) {
+            const json = await res.json();
+            if (json && json.data) {
+              const cloudText: TextResponse[] = json.data.textResponses || [];
+              const cloudScale: ScaleResponse[] = json.data.scaleResponses || [];
+              const local = this.getPollState(pollId);
 
-            // Merge items
-            const textMap = new Map<string, TextResponse>();
-            // Keep order: newer first
-            [...cloudText, ...local.textResponses].forEach((item) => {
-              if (item && item.id && !textMap.has(item.id)) {
-                textMap.set(item.id, item);
-              }
-            });
+              // Merge items
+              const textMap = new Map<string, TextResponse>();
+              [...cloudText, ...local.textResponses].forEach((item) => {
+                if (item && item.id && !textMap.has(item.id)) {
+                  textMap.set(item.id, item);
+                }
+              });
 
-            const scaleMap = new Map<string, ScaleResponse>();
-            [...cloudScale, ...local.scaleResponses].forEach((item) => {
-              if (item && item.id && !scaleMap.has(item.id)) {
-                scaleMap.set(item.id, item);
-              }
-            });
+              const scaleMap = new Map<string, ScaleResponse>();
+              [...cloudScale, ...local.scaleResponses].forEach((item) => {
+                if (item && item.id && !scaleMap.has(item.id)) {
+                  scaleMap.set(item.id, item);
+                }
+              });
 
-            const merged: PollState = {
-              textResponses: Array.from(textMap.values()).sort((a, b) => b.timestamp - a.timestamp),
-              scaleResponses: Array.from(scaleMap.values()),
-            };
+              const merged: PollState = {
+                textResponses: Array.from(textMap.values()).sort((a, b) => b.timestamp - a.timestamp),
+                scaleResponses: Array.from(scaleMap.values()),
+              };
 
-            const localCount = local.textResponses.length + local.scaleResponses.length;
-            const mergedCount = merged.textResponses.length + merged.scaleResponses.length;
-
-            if (mergedCount !== localCount || JSON.stringify(local) !== JSON.stringify(merged)) {
               this.savePollState(pollId, merged);
               this.notifyListeners(pollId, merged);
             }
           }
+        } catch (e) {
+          // Ignore individual fetch blips
         }
-      } catch (e) {
-        // Ignore background network blips
-      }
+      }));
+    } finally {
+      this.isSyncing = false;
     }
-
-    this.isSyncing = false;
   }
 
   private async pushPollStateToCloud(pollId: string, state: PollState) {
@@ -120,18 +116,56 @@ class RealtimeService {
     if (!containerId) return;
 
     try {
+      let cloudText: TextResponse[] = [];
+      let cloudScale: ScaleResponse[] = [];
+
+      try {
+        const currentRes = await fetch(`https://api.restful-api.dev/objects/${containerId}`, { cache: 'no-store' });
+        if (currentRes.ok) {
+          const json = await currentRes.json();
+          if (json && json.data) {
+            cloudText = json.data.textResponses || [];
+            cloudScale = json.data.scaleResponses || [];
+          }
+        }
+      } catch (e) {}
+
+      const textMap = new Map<string, TextResponse>();
+      [...state.textResponses, ...cloudText].forEach((item) => {
+        if (item && item.id && !textMap.has(item.id)) {
+          textMap.set(item.id, item);
+        }
+      });
+
+      const scaleMap = new Map<string, ScaleResponse>();
+      [...state.scaleResponses, ...cloudScale].forEach((item) => {
+        if (item && item.id && !scaleMap.has(item.id)) {
+          scaleMap.set(item.id, item);
+        }
+      });
+
+      const combinedText = Array.from(textMap.values()).sort((a, b) => b.timestamp - a.timestamp);
+      const combinedScale = Array.from(scaleMap.values());
+
       await fetch(`https://api.restful-api.dev/objects/${containerId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name: `gml_state_${pollId}_v1`,
           data: {
-            textResponses: state.textResponses,
-            scaleResponses: state.scaleResponses,
+            textResponses: combinedText,
+            scaleResponses: combinedScale,
             lastUpdated: Date.now(),
           },
         }),
       });
+
+      const finalState: PollState = {
+        textResponses: combinedText,
+        scaleResponses: combinedScale,
+      };
+      this.savePollState(pollId, finalState);
+      this.notifyListeners(pollId, finalState);
     } catch (e) {
       console.error('Failed to push state to cloud', e);
     }
