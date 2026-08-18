@@ -1,22 +1,26 @@
-import Peer, { DataConnection } from 'peerjs';
 import { PollState, ScaleResponse, TextResponse } from '../types';
 
-const BROADCAST_CHANNEL_NAME = 'gml_workshop_poll_sync_v6';
-const STORAGE_KEY_POLL1 = 'gml_poll1_live_state_v6';
-const STORAGE_KEY_POLL2 = 'gml_poll2_live_state_v6';
-const STORAGE_KEY_LEADERSHIP = 'gml_leadership_feedback_state_v6';
+const BROADCAST_CHANNEL_NAME = 'gml_workshop_poll_sync_v7';
+const STORAGE_KEY_POLL1 = 'gml_poll1_live_state_v7';
+const STORAGE_KEY_POLL2 = 'gml_poll2_live_state_v7';
+const STORAGE_KEY_LEADERSHIP = 'gml_leadership_feedback_state_v7';
 
-export const PEER_HOST_IDS: Record<string, string> = {
-  leadership: 'gml-ws-2026-host-leadership',
-  poll1: 'gml-ws-2026-host-poll1',
-  poll2: 'gml-ws-2026-host-poll2',
-};
+const NTFY_TOPIC = 'gml_workshop_svp8_26_live_sync_v7';
+const NTFY_BASE_URL = `https://ntfy.sh/${NTFY_TOPIC}`;
+
+interface SyncMessage {
+  type: 'text' | 'scale' | 'delete' | 'reset';
+  pollId: string;
+  payload?: any;
+  timestamp: number;
+}
 
 class RealtimeService {
   private channel: BroadcastChannel | null = null;
   private listeners: Map<string, Set<(state: PollState) => void>> = new Map();
-  private hostPeers: Map<string, Peer> = new Map();
-  private clientPeer: Peer | null = null;
+  private eventSource: EventSource | null = null;
+  private pollIntervalId: any = null;
+  private processedMessageIds: Set<string> = new Set();
 
   constructor() {
     // 1. BroadcastChannel for same-device cross-tab communication
@@ -43,121 +47,145 @@ class RealtimeService {
         }
       });
     }
-  }
 
-  // Start P2P WebRTC Host listener for a specific poll on the presenter screen
-  public startHostListener(pollId: string) {
-    if (typeof window === 'undefined') return;
-    if (this.hostPeers.has(pollId)) return;
-
-    const hostId = PEER_HOST_IDS[pollId];
-    if (!hostId) return;
-
-    try {
-      const peer = new Peer(hostId, {
-        debug: 0,
-      });
-
-      peer.on('open', () => {
-        // Host ready
-      });
-
-      peer.on('connection', (conn: DataConnection) => {
-        conn.on('data', (data: any) => {
-          if (!data || typeof data !== 'object') return;
-
-          if (data.type === 'text' && data.text) {
-            this.addTextVote(pollId, data.text, data.id);
-            try {
-              conn.send({ status: 'ok', id: data.id });
-            } catch (e) {}
-          } else if (data.type === 'scale' && typeof data.value === 'number') {
-            this.addScaleVote(pollId, data.value, data.id);
-            try {
-              conn.send({ status: 'ok', id: data.id });
-            } catch (e) {}
-          }
-        });
-      });
-
-      peer.on('error', (err: any) => {
-        // If ID is taken (another tab already hosting), destroy gracefully
-        if (err.type === 'unavailable-id') {
-          // Already running
-        }
-      });
-
-      this.hostPeers.set(pollId, peer);
-    } catch (e) {
-      console.error('Failed to initialize Peer host', e);
+    // 3. Cloud Realtime Subscription via Server-Sent Events + Polling
+    if (typeof window !== 'undefined') {
+      this.initCloudSubscription();
     }
   }
 
-  // Send vote from mobile phone via P2P WebRTC to presenter host
+  private initCloudSubscription() {
+    try {
+      if (this.eventSource) {
+        this.eventSource.close();
+      }
+
+      this.eventSource = new EventSource(`${NTFY_BASE_URL}/sse`);
+
+      this.eventSource.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          if (data.event === 'message' && data.message) {
+            this.handleIncomingSyncMessage(data.message);
+          }
+        } catch (e) {}
+      };
+
+      this.eventSource.onerror = () => {
+        // Auto-reconnect in 3s if SSE gets interrupted
+        setTimeout(() => {
+          if (!this.eventSource || this.eventSource.readyState === EventSource.CLOSED) {
+            this.initCloudSubscription();
+          }
+        }, 3000);
+      };
+
+      // Periodic fetch for missed messages (heartbeat fallback)
+      if (this.pollIntervalId) clearInterval(this.pollIntervalId);
+      this.pollIntervalId = setInterval(() => {
+        this.fetchRecentMessages();
+      }, 3000);
+
+      this.fetchRecentMessages();
+    } catch (e) {
+      console.error('Failed to init cloud subscription', e);
+    }
+  }
+
+  public async fetchRecentMessages() {
+    try {
+      const res = await fetch(`${NTFY_BASE_URL}/json?poll=1&since=12h`);
+      if (res.ok) {
+        const text = await res.text();
+        const lines = text.trim().split('\n');
+        for (const line of lines) {
+          if (!line.trim()) continue;
+          try {
+            const data = JSON.parse(line);
+            if (data.event === 'message' && data.message) {
+              this.handleIncomingSyncMessage(data.message);
+            }
+          } catch (e) {}
+        }
+      }
+    } catch (e) {}
+  }
+
+  private handleIncomingSyncMessage(messageStr: string) {
+    try {
+      const msg: SyncMessage = JSON.parse(messageStr);
+      if (!msg || !msg.pollId || !msg.type) return;
+
+      const dedupeKey = `${msg.pollId}_${msg.type}_${JSON.stringify(msg.payload)}`;
+      if (this.processedMessageIds.has(dedupeKey)) return;
+      this.processedMessageIds.add(dedupeKey);
+
+      if (msg.type === 'text' && msg.payload) {
+        const item = msg.payload as TextResponse;
+        const current = this.getPollState(msg.pollId);
+        if (!current.textResponses.some((r) => r.id === item.id || r.text === item.text)) {
+          const updated: PollState = {
+            ...current,
+            textResponses: [item, ...current.textResponses],
+          };
+          this.savePollState(msg.pollId, updated);
+          this.notifyListeners(msg.pollId, updated);
+        }
+      } else if (msg.type === 'scale' && msg.payload) {
+        const item = msg.payload as ScaleResponse;
+        const current = this.getPollState(msg.pollId);
+        if (!current.scaleResponses.some((r) => r.id === item.id)) {
+          const updated: PollState = {
+            ...current,
+            scaleResponses: [...current.scaleResponses, item],
+          };
+          this.savePollState(msg.pollId, updated);
+          this.notifyListeners(msg.pollId, updated);
+        }
+      } else if (msg.type === 'delete' && msg.payload && msg.payload.id) {
+        const current = this.getPollState(msg.pollId);
+        const updated: PollState = {
+          ...current,
+          textResponses: current.textResponses.filter((r) => r.id !== msg.payload.id),
+        };
+        this.savePollState(msg.pollId, updated);
+        this.notifyListeners(msg.pollId, updated);
+      } else if (msg.type === 'reset') {
+        const emptyState: PollState = {
+          textResponses: [],
+          scaleResponses: [],
+        };
+        this.savePollState(msg.pollId, emptyState);
+        this.notifyListeners(msg.pollId, emptyState);
+      }
+    } catch (e) {}
+  }
+
+  private async publishToCloud(msg: SyncMessage) {
+    const dedupeKey = `${msg.pollId}_${msg.type}_${JSON.stringify(msg.payload)}`;
+    this.processedMessageIds.add(dedupeKey);
+
+    try {
+      await fetch(NTFY_BASE_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain' },
+        body: JSON.stringify(msg),
+      });
+    } catch (e) {
+      console.error('Failed to publish to cloud', e);
+    }
+  }
+
   public async sendVoteFromMobile(
     pollId: string,
     payload: { type: 'text' | 'scale'; text?: string; value?: number }
   ): Promise<boolean> {
-    const hostId = PEER_HOST_IDS[pollId];
-    if (!hostId) return false;
-
-    // Save locally on mobile too
     if (payload.type === 'text' && payload.text) {
       this.addTextVote(pollId, payload.text);
     } else if (payload.type === 'scale' && typeof payload.value === 'number') {
       this.addScaleVote(pollId, payload.value);
     }
-
-    return new Promise((resolve) => {
-      try {
-        if (!this.clientPeer || this.clientPeer.destroyed) {
-          this.clientPeer = new Peer({ debug: 0 });
-        }
-
-        const sendData = () => {
-          if (!this.clientPeer) {
-            resolve(true);
-            return;
-          }
-          const conn = this.clientPeer.connect(hostId, { reliable: true });
-          const timeout = setTimeout(() => {
-            resolve(true);
-          }, 3000);
-
-          conn.on('open', () => {
-            conn.send({
-              ...payload,
-              pollId,
-              id: Math.random().toString(36).substring(2, 9) + Date.now().toString(36),
-              timestamp: Date.now(),
-            });
-            clearTimeout(timeout);
-            setTimeout(() => {
-              conn.close();
-              resolve(true);
-            }, 300);
-          });
-
-          conn.on('error', () => {
-            clearTimeout(timeout);
-            resolve(true);
-          });
-        };
-
-        if (this.clientPeer.open) {
-          sendData();
-        } else {
-          this.clientPeer.on('open', () => {
-            sendData();
-          });
-          this.clientPeer.on('error', () => {
-            resolve(true);
-          });
-        }
-      } catch (e) {
-        resolve(true);
-      }
-    });
+    return true;
   }
 
   private getStorageKey(pollId: string): string {
@@ -231,18 +259,13 @@ class RealtimeService {
     }
   }
 
-  public addTextVote(pollId: string, text: string, existingId?: string) {
+  public addTextVote(pollId: string, text: string) {
     const trimmed = text.trim();
     if (!trimmed) return;
     const current = this.getPollState(pollId);
 
-    // Prevent duplicates
-    if (existingId && current.textResponses.some((r) => r.id === existingId)) {
-      return;
-    }
-
     const newResponse: TextResponse = {
-      id: existingId || Math.random().toString(36).substring(2, 9) + Date.now().toString(36),
+      id: Math.random().toString(36).substring(2, 9) + Date.now().toString(36),
       text: trimmed,
       timestamp: Date.now(),
     };
@@ -252,18 +275,22 @@ class RealtimeService {
     };
     this.savePollState(pollId, updated);
     this.notifyListeners(pollId, updated);
+
+    // Publish event across all devices
+    this.publishToCloud({
+      type: 'text',
+      pollId,
+      payload: newResponse,
+      timestamp: Date.now(),
+    });
   }
 
-  public addScaleVote(pollId: string, value: number, existingId?: string) {
+  public addScaleVote(pollId: string, value: number) {
     const clamped = Math.max(1, Math.min(100, Math.round(value)));
     const current = this.getPollState(pollId);
 
-    if (existingId && current.scaleResponses.some((r) => r.id === existingId)) {
-      return;
-    }
-
     const newResponse: ScaleResponse = {
-      id: existingId || Math.random().toString(36).substring(2, 9) + Date.now().toString(36),
+      id: Math.random().toString(36).substring(2, 9) + Date.now().toString(36),
       value: clamped,
       timestamp: Date.now(),
     };
@@ -273,6 +300,14 @@ class RealtimeService {
     };
     this.savePollState(pollId, updated);
     this.notifyListeners(pollId, updated);
+
+    // Publish event across all devices
+    this.publishToCloud({
+      type: 'scale',
+      pollId,
+      payload: newResponse,
+      timestamp: Date.now(),
+    });
   }
 
   public deleteTextVote(pollId: string, id: string) {
@@ -283,6 +318,13 @@ class RealtimeService {
     };
     this.savePollState(pollId, updated);
     this.notifyListeners(pollId, updated);
+
+    this.publishToCloud({
+      type: 'delete',
+      pollId,
+      payload: { id },
+      timestamp: Date.now(),
+    });
   }
 
   public resetVotes(pollId: string) {
@@ -292,6 +334,12 @@ class RealtimeService {
     };
     this.savePollState(pollId, emptyState);
     this.notifyListeners(pollId, emptyState);
+
+    this.publishToCloud({
+      type: 'reset',
+      pollId,
+      timestamp: Date.now(),
+    });
   }
 
   public subscribe(pollId: string, callback: (state: PollState) => void): () => void {
@@ -302,9 +350,6 @@ class RealtimeService {
 
     // Initial state push
     callback(this.getPollState(pollId));
-
-    // Ensure host listener is active
-    this.startHostListener(pollId);
 
     return () => {
       const set = this.listeners.get(pollId);
