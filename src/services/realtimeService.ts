@@ -1,25 +1,21 @@
 import { PollState, ScaleResponse, TextResponse } from '../types';
 
-const BROADCAST_CHANNEL_NAME = 'gml_workshop_poll_sync_v4';
-const STORAGE_KEY_POLL1 = 'gml_poll1_live_state_v4';
-const STORAGE_KEY_POLL2 = 'gml_poll2_live_state_v4';
-const STORAGE_KEY_LEADERSHIP = 'gml_leadership_feedback_state_v4';
-const NTFY_TOPIC = 'gml_ws_svp8_26_sync_live_v4';
-const NTFY_BASE_URL = `https://ntfy.sh/${NTFY_TOPIC}`;
+const BROADCAST_CHANNEL_NAME = 'gml_workshop_poll_sync_v5';
+const STORAGE_KEY_POLL1 = 'gml_poll1_live_state_v5';
+const STORAGE_KEY_POLL2 = 'gml_poll2_live_state_v5';
+const STORAGE_KEY_LEADERSHIP = 'gml_leadership_feedback_state_v5';
 
-interface SyncMessage {
-  type: 'scale' | 'text' | 'reset' | 'delete';
-  pollId: string;
-  payload?: any;
-  timestamp: number;
-}
+const CLOUD_CONTAINERS: Record<string, string> = {
+  leadership: 'ff8081819ff5b11001a01640eb8c46fb',
+  poll1: 'ff8081819ff5b11001a01640eca946fc',
+  poll2: 'ff8081819ff5b11001a01640edab46fd',
+};
 
 class RealtimeService {
   private channel: BroadcastChannel | null = null;
-  private eventSource: EventSource | null = null;
   private listeners: Map<string, Set<(state: PollState) => void>> = new Map();
-  private processedMessageIds: Set<string> = new Set();
   private pollIntervalId: any = null;
+  private isSyncing = false;
 
   constructor() {
     // 1. Local tab/window synchronization (BroadcastChannel)
@@ -34,19 +30,14 @@ class RealtimeService {
       };
     }
 
-    // 2. Cross-device Internet synchronization via Global SSE (Server-Sent Events) + Robust 2s Polling fallback
+    // 2. Global Cloud Sync: Fast 1.5s Polling loop across all devices
     if (typeof window !== 'undefined') {
-      if (typeof EventSource !== 'undefined') {
-        this.initCloudSSE();
-      }
       this.fetchCloudHistory();
 
-      // Reliable 2-second background heartbeat polling
       this.pollIntervalId = setInterval(() => {
         this.fetchCloudHistory();
-      }, 2000);
+      }, 1500);
 
-      // Window focus refresh
       window.addEventListener('focus', () => {
         this.fetchCloudHistory();
       });
@@ -66,115 +57,83 @@ class RealtimeService {
     }
   }
 
-  private initCloudSSE() {
-    try {
-      if (this.eventSource) {
-        this.eventSource.close();
-      }
-      this.eventSource = new EventSource(`${NTFY_BASE_URL}/sse`);
-      
-      this.eventSource.onmessage = (event) => {
-        try {
-          const data = JSON.parse(event.data);
-          if (data && data.message) {
-            const syncMsg: SyncMessage = JSON.parse(data.message);
-            this.handleIncomingCloudMessage(syncMsg);
-          }
-        } catch (e) {
-          // Ignore parse errors
-        }
-      };
-
-      this.eventSource.onerror = () => {
-        // Handled by SSE automatic reconnection + polling
-      };
-    } catch (e) {
-      console.warn('Realtime cloud SSE initialization fallback', e);
-    }
-  }
-
-  // Fetch recent votes from cloud on initial load & heartbeat
+  // Fetch latest state from cloud for all polls
   public async fetchCloudHistory() {
-    try {
-      const response = await fetch(`${NTFY_BASE_URL}/json?poll=1&since=24h`);
-      if (response.ok) {
-        const text = await response.text();
-        const lines = text.trim().split('\n');
-        for (const line of lines) {
-          if (!line.trim()) continue;
-          try {
-            const data = JSON.parse(line);
-            if (data && data.message) {
-              const syncMsg: SyncMessage = JSON.parse(data.message);
-              this.handleIncomingCloudMessage(syncMsg);
-            }
-          } catch (e) {}
-        }
-      }
-    } catch (e) {}
+    if (this.isSyncing) return;
+    this.isSyncing = true;
 
-    try {
-      const response2 = await fetch(`${NTFY_BASE_URL}_bk/json?poll=1&since=24h`);
-      if (response2.ok) {
-        const text = await response2.text();
-        const lines = text.trim().split('\n');
-        for (const line of lines) {
-          if (!line.trim()) continue;
-          try {
-            const data = JSON.parse(line);
-            if (data && data.message) {
-              const syncMsg: SyncMessage = JSON.parse(data.message);
-              this.handleIncomingCloudMessage(syncMsg);
+    for (const pollId of ['leadership', 'poll1', 'poll2']) {
+      const containerId = CLOUD_CONTAINERS[pollId];
+      if (!containerId) continue;
+
+      try {
+        const res = await fetch(`https://api.restful-api.dev/objects/${containerId}`, {
+          cache: 'no-store',
+        });
+        if (res.ok) {
+          const json = await res.json();
+          if (json && json.data) {
+            const cloudText: TextResponse[] = json.data.textResponses || [];
+            const cloudScale: ScaleResponse[] = json.data.scaleResponses || [];
+            const local = this.getPollState(pollId);
+
+            // Merge items
+            const textMap = new Map<string, TextResponse>();
+            // Keep order: newer first
+            [...cloudText, ...local.textResponses].forEach((item) => {
+              if (item && item.id && !textMap.has(item.id)) {
+                textMap.set(item.id, item);
+              }
+            });
+
+            const scaleMap = new Map<string, ScaleResponse>();
+            [...cloudScale, ...local.scaleResponses].forEach((item) => {
+              if (item && item.id && !scaleMap.has(item.id)) {
+                scaleMap.set(item.id, item);
+              }
+            });
+
+            const merged: PollState = {
+              textResponses: Array.from(textMap.values()).sort((a, b) => b.timestamp - a.timestamp),
+              scaleResponses: Array.from(scaleMap.values()),
+            };
+
+            const localCount = local.textResponses.length + local.scaleResponses.length;
+            const mergedCount = merged.textResponses.length + merged.scaleResponses.length;
+
+            if (mergedCount !== localCount || JSON.stringify(local) !== JSON.stringify(merged)) {
+              this.savePollState(pollId, merged);
+              this.notifyListeners(pollId, merged);
             }
-          } catch (e) {}
+          }
         }
+      } catch (e) {
+        // Ignore background network blips
       }
-    } catch (e) {}
+    }
+
+    this.isSyncing = false;
   }
 
-  private handleIncomingCloudMessage(msg: SyncMessage) {
-    if (!msg || !msg.pollId) return;
-    const msgId = `${msg.type}_${msg.pollId}_${msg.timestamp}_${JSON.stringify(msg.payload || '')}`;
-    if (this.processedMessageIds.has(msgId)) return;
-    this.processedMessageIds.add(msgId);
+  private async pushPollStateToCloud(pollId: string, state: PollState) {
+    const containerId = CLOUD_CONTAINERS[pollId];
+    if (!containerId) return;
 
-    const pollId = msg.pollId;
-    const currentState = this.getPollState(pollId);
-
-    if (msg.type === 'scale' && msg.payload) {
-      const exists = currentState.scaleResponses.some((r) => r.id === msg.payload.id);
-      if (!exists) {
-        const updated: PollState = {
-          ...currentState,
-          scaleResponses: [...currentState.scaleResponses, msg.payload],
-        };
-        this.savePollState(pollId, updated);
-        this.notifyListeners(pollId, updated);
-      }
-    } else if (msg.type === 'text' && msg.payload) {
-      const exists = currentState.textResponses.some((r) => r.id === msg.payload.id);
-      if (!exists) {
-        const updated: PollState = {
-          ...currentState,
-          textResponses: [msg.payload, ...currentState.textResponses],
-        };
-        this.savePollState(pollId, updated);
-        this.notifyListeners(pollId, updated);
-      }
-    } else if (msg.type === 'delete' && msg.payload) {
-      const updated: PollState = {
-        ...currentState,
-        textResponses: currentState.textResponses.filter((r) => r.id !== msg.payload),
-      };
-      this.savePollState(pollId, updated);
-      this.notifyListeners(pollId, updated);
-    } else if (msg.type === 'reset') {
-      const emptyState: PollState = {
-        textResponses: [],
-        scaleResponses: [],
-      };
-      this.savePollState(pollId, emptyState);
-      this.notifyListeners(pollId, emptyState);
+    try {
+      await fetch(`https://api.restful-api.dev/objects/${containerId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: `gml_state_${pollId}_v1`,
+          data: {
+            textResponses: state.textResponses,
+            scaleResponses: state.scaleResponses,
+            lastUpdated: Date.now(),
+          },
+        }),
+      });
+    } catch (e) {
+      console.error('Failed to push state to cloud', e);
     }
   }
 
@@ -239,25 +198,6 @@ class RealtimeService {
     };
   }
 
-  public deleteTextVote(pollId: string, id: string) {
-    const current = this.getPollState(pollId);
-    const updated: PollState = {
-      ...current,
-      textResponses: current.textResponses.filter((r) => r.id !== id),
-    };
-    this.savePollState(pollId, updated);
-    this.notifyListeners(pollId, updated);
-
-    // Broadcast delete to cloud
-    const syncMsg: SyncMessage = {
-      type: 'delete',
-      pollId,
-      payload: id,
-      timestamp: Date.now(),
-    };
-    this.publishToCloud(syncMsg);
-  }
-
   private savePollState(pollId: string, state: PollState) {
     const key = this.getStorageKey(pollId);
     try {
@@ -268,26 +208,7 @@ class RealtimeService {
     }
   }
 
-  private publishToCloud(msg: SyncMessage) {
-    try {
-      const bodyStr = JSON.stringify(msg);
-      fetch(NTFY_BASE_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain' },
-        body: bodyStr,
-      }).catch(() => {});
-
-      fetch(`${NTFY_BASE_URL}_bk`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain' },
-        body: bodyStr,
-      }).catch(() => {});
-    } catch (e) {
-      // Ignore network errors
-    }
-  }
-
-  public addTextVote(pollId: string, text: string) {
+  public async addTextVote(pollId: string, text: string) {
     const trimmed = text.trim();
     if (!trimmed) return;
     const current = this.getPollState(pollId);
@@ -303,17 +224,11 @@ class RealtimeService {
     this.savePollState(pollId, updated);
     this.notifyListeners(pollId, updated);
 
-    // Broadcast across all devices via Cloud
-    const syncMsg: SyncMessage = {
-      type: 'text',
-      pollId,
-      payload: newResponse,
-      timestamp: Date.now(),
-    };
-    this.publishToCloud(syncMsg);
+    // Push directly to cloud container
+    await this.pushPollStateToCloud(pollId, updated);
   }
 
-  public addScaleVote(pollId: string, value: number) {
+  public async addScaleVote(pollId: string, value: number) {
     const clamped = Math.max(1, Math.min(100, Math.round(value)));
     const current = this.getPollState(pollId);
     const newResponse: ScaleResponse = {
@@ -328,17 +243,23 @@ class RealtimeService {
     this.savePollState(pollId, updated);
     this.notifyListeners(pollId, updated);
 
-    // Broadcast across all devices via Cloud
-    const syncMsg: SyncMessage = {
-      type: 'scale',
-      pollId,
-      payload: newResponse,
-      timestamp: Date.now(),
-    };
-    this.publishToCloud(syncMsg);
+    // Push directly to cloud container
+    await this.pushPollStateToCloud(pollId, updated);
   }
 
-  public resetVotes(pollId: string) {
+  public async deleteTextVote(pollId: string, id: string) {
+    const current = this.getPollState(pollId);
+    const updated: PollState = {
+      ...current,
+      textResponses: current.textResponses.filter((r) => r.id !== id),
+    };
+    this.savePollState(pollId, updated);
+    this.notifyListeners(pollId, updated);
+
+    await this.pushPollStateToCloud(pollId, updated);
+  }
+
+  public async resetVotes(pollId: string) {
     const emptyState: PollState = {
       textResponses: [],
       scaleResponses: [],
@@ -346,13 +267,7 @@ class RealtimeService {
     this.savePollState(pollId, emptyState);
     this.notifyListeners(pollId, emptyState);
 
-    // Broadcast reset to all phones and presentation screens
-    const syncMsg: SyncMessage = {
-      type: 'reset',
-      pollId,
-      timestamp: Date.now(),
-    };
-    this.publishToCloud(syncMsg);
+    await this.pushPollStateToCloud(pollId, emptyState);
   }
 
   public subscribe(pollId: string, callback: (state: PollState) => void): () => void {
