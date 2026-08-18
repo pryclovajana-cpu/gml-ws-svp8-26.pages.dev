@@ -66,30 +66,6 @@ export const Slide20_Conclusion: React.FC = () => {
           />
         </p>
       </div>
-
-      {/* Bottom Contact Linear Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 border-t border-gray-100 pt-3 sm:pt-4 text-center sm:text-left max-w-4xl mx-auto w-full">
-        <div>
-          <span className="text-[10px] font-bold text-gray-400 uppercase block">Lektorka</span>
-          <span className="text-xs sm:text-sm font-extrabold text-gml-slate-900">
-            <EditableText id="s20_name" defaultText="Mgr. et Mgr. Jana Pryclová" />
-          </span>
-        </div>
-
-        <div>
-          <span className="text-[10px] font-bold text-gray-400 uppercase block">Kontakt & Mentoring</span>
-          <span className="text-xs font-semibold text-gml-slate-800 font-mono">
-            <EditableText id="s20_email" defaultText="jana.pryclova@afres.cz" />
-          </span>
-        </div>
-
-        <div>
-          <span className="text-[10px] font-bold text-gray-400 uppercase block">Web školy</span>
-          <span className="text-xs font-semibold text-gml-slate-800 font-mono">
-            <EditableText id="s20_web" defaultText="www.gml.cz" />
-          </span>
-        </div>
-      </div>
     </div>
   );
 };
