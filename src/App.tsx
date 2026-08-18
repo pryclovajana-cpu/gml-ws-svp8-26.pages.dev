@@ -5,6 +5,7 @@ import { SlideDrawer } from './components/Navigation/SlideDrawer';
 import { AdminEditProvider } from './context/AdminEditContext';
 import { MobileVoteView } from './components/ModuleA/MobileVoteView';
 
+// GML Workshop Presentation App - Updated Build 2026-08-18
 export const App: React.FC = () => {
   const [currentSlideIndex, setCurrentSlideIndex] = useState<number>(() => {
     if (typeof window !== 'undefined') {
