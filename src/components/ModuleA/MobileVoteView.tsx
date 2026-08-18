@@ -40,6 +40,9 @@ export const MobileVoteView: React.FC = () => {
     e.preventDefault();
     setSubmittedScale(true);
     await realtimeService.sendVoteFromMobile(pollId, { type: 'scale', value: scaleVote });
+    setTimeout(() => {
+      setSubmittedScale(false);
+    }, 4000);
   };
 
   const isLeadership = pollId === 'leadership';
@@ -169,45 +172,42 @@ export const MobileVoteView: React.FC = () => {
               </h2>
             </div>
 
-            {submittedScale ? (
-              <div className="p-4 bg-gml-green-50 rounded-2xl text-center border border-gml-green-200">
-                <CheckCircle2 className="w-8 h-8 text-gml-green-600 mx-auto mb-1" />
-                <span className="text-sm font-bold text-gml-green-900 block">
-                  Hodnocení uloženo! ({scaleVote} %)
+            {submittedScale && (
+              <div className="p-3.5 bg-gml-green-50 rounded-2xl text-center border border-gml-green-300 animate-fade-in flex items-center justify-center gap-2">
+                <CheckCircle2 className="w-5 h-5 text-gml-green-600 shrink-0" />
+                <span className="text-xs font-bold text-gml-green-900">
+                  Hodnocení ({scaleVote} %) bylo odesláno na plátno! Můžete hodnotit opakovaně.
                 </span>
-                <p className="text-xs text-gml-green-700 mt-1">
-                  Vaše hodnocení se ihned promítlo na projekční plátno.
-                </p>
               </div>
-            ) : (
-              <form onSubmit={handleSendScale} className="space-y-4">
-                <div className="space-y-2">
-                  <div className="flex justify-between items-center text-xs font-bold text-gray-500">
-                    <span>1 % (Skepticismus)</span>
-                    <span className="text-lg font-extrabold text-gml-green-700 font-mono">
-                      {scaleVote} %
-                    </span>
-                    <span>100 % (Velká důvěra)</span>
-                  </div>
-                  <input
-                    type="range"
-                    min="1"
-                    max="100"
-                    value={scaleVote}
-                    onChange={(e) => setScaleVote(Number(e.target.value))}
-                    className="w-full accent-gml-green-600 h-2 bg-gray-200 rounded-lg cursor-pointer"
-                  />
-                </div>
-
-                <button
-                  type="submit"
-                  className="w-full py-3 bg-gml-green-600 hover:bg-gml-green-700 active:scale-98 text-white font-bold text-sm rounded-2xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
-                >
-                  <Sparkles className="w-4 h-4" />
-                  <span>Odeslat hodnocení ({scaleVote} %)</span>
-                </button>
-              </form>
             )}
+
+            <form onSubmit={handleSendScale} className="space-y-4">
+              <div className="space-y-2">
+                <div className="flex justify-between items-center text-xs font-bold text-gray-500">
+                  <span>1 % (Skepticismus)</span>
+                  <span className="text-lg font-extrabold text-gml-green-700 font-mono">
+                    {scaleVote} %
+                  </span>
+                  <span>100 % (Velká důvěra)</span>
+                </div>
+                <input
+                  type="range"
+                  min="1"
+                  max="100"
+                  value={scaleVote}
+                  onChange={(e) => setScaleVote(Number(e.target.value))}
+                  className="w-full accent-gml-green-600 h-2 bg-gray-200 rounded-lg cursor-pointer"
+                />
+              </div>
+
+              <button
+                type="submit"
+                className="w-full py-3 bg-gml-green-600 hover:bg-gml-green-700 active:scale-98 text-white font-bold text-sm rounded-2xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <Sparkles className="w-4 h-4" />
+                <span>Odeslat hodnocení ({scaleVote} %)</span>
+              </button>
+            </form>
           </div>
         )}
       </main>
