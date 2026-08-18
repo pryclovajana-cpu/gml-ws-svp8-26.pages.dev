@@ -150,8 +150,10 @@ export const App: React.FC = () => {
 
         {/* Expansive Presentation Viewport - Sized for Widescreen Height */}
         <main className="flex-1 w-full min-h-[calc(100dvh-56px)] md:h-[calc(100dvh-60px)] pb-14 md:pb-16 relative flex items-center justify-center p-1.5 sm:p-3 md:p-4">
-          <div className="w-full max-w-[1560px] h-full max-h-[960px] bg-white rounded-2xl md:rounded-3xl border border-gray-200/90 shadow-xl shadow-slate-900/5 overflow-y-auto md:overflow-hidden flex flex-col transition-all duration-300">
-            <SlideComponent onNext={goToNextSlide} />
+          <div className="w-full max-w-[1560px] h-full min-h-[600px] max-h-[960px] bg-white rounded-2xl md:rounded-3xl border border-gray-200/90 shadow-xl shadow-slate-900/5 overflow-y-auto md:overflow-hidden flex flex-col transition-all duration-300">
+            <div className="w-full h-full flex-1 flex flex-col">
+              <SlideComponent onNext={goToNextSlide} />
+            </div>
           </div>
         </main>
 

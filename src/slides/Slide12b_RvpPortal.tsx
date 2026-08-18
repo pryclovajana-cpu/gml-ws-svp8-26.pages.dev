@@ -11,7 +11,7 @@ export const Slide12b_RvpPortal: React.FC = () => {
   };
 
   return (
-    <div className="w-full h-full flex flex-col p-2 sm:p-3 md:p-4 select-none bg-white space-y-2">
+    <div className="w-full h-full min-h-[580px] sm:min-h-[640px] md:min-h-[700px] flex flex-col p-2 sm:p-3 md:p-4 select-none bg-white space-y-2">
       {/* Sleek Header Bar */}
       <div className="flex items-center justify-between gap-3 bg-white px-2 py-1 shrink-0">
         <div className="flex items-center gap-2 min-w-0">
@@ -59,7 +59,7 @@ export const Slide12b_RvpPortal: React.FC = () => {
       </div>
 
       {/* 100% Full-Height Embedded Live Iframe Window */}
-      <div className="flex-1 w-full rounded-2xl border-2 border-gml-green-300 shadow-lg bg-white overflow-hidden relative">
+      <div className="w-full flex-1 min-h-[500px] sm:min-h-[560px] md:min-h-[620px] rounded-2xl border-2 border-gml-green-300 shadow-lg bg-white overflow-hidden relative">
         <iframe
           key={iframeKey}
           src={portalUrl}
