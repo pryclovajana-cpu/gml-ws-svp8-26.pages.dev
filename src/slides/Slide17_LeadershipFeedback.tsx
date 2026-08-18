@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { Send, MessageSquarePlus, ShieldCheck, QrCode, ExternalLink, RefreshCw, Sparkles } from 'lucide-react';
+import { Send, MessageSquarePlus, ShieldCheck, ExternalLink, Trash2, Sparkles } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { realtimeService } from '../services/realtimeService';
+import { TextResponse } from '../types';
 import { EditableText } from '../context/AdminEditContext';
 
 export const Slide17_LeadershipFeedback: React.FC = () => {
-  const [feedbackList, setFeedbackList] = useState<string[]>(() => {
+  const [feedbackList, setFeedbackList] = useState<TextResponse[]>(() => {
     const state = realtimeService.getPollState('leadership');
-    return state.textResponses.map((r) => r.text);
+    return state.textResponses;
   });
 
   const [inputVal, setInputVal] = useState('');
@@ -15,7 +16,7 @@ export const Slide17_LeadershipFeedback: React.FC = () => {
   // Subscribe to real-time live submissions (from mobile phones & cross-tab)
   useEffect(() => {
     const unsubscribe = realtimeService.subscribe('leadership', (newState) => {
-      setFeedbackList(newState.textResponses.map((r) => r.text));
+      setFeedbackList(newState.textResponses);
     });
     return () => {
       unsubscribe();
@@ -30,9 +31,13 @@ export const Slide17_LeadershipFeedback: React.FC = () => {
   };
 
   const handleReset = () => {
-    if (window.confirm('Opravdu chcete vyčistit všechny podněty pro vedení?')) {
+    if (window.confirm('Opravdu chcete smazat všechny podněty a vyčistit plochu?')) {
       realtimeService.resetVotes('leadership');
     }
+  };
+
+  const handleDeleteItem = (id: string) => {
+    realtimeService.deleteTextVote('leadership', id);
   };
 
   const voteUrl = typeof window !== 'undefined'
@@ -126,36 +131,50 @@ export const Slide17_LeadershipFeedback: React.FC = () => {
               <span className="text-[10px] font-bold text-gml-green-800 bg-gml-green-100 px-2 py-0.5 rounded-full uppercase animate-pulse">
                 Živý příjem
               </span>
-              <button
-                onClick={handleReset}
-                title="Vynulovat podněty"
-                className="p-1 text-gray-400 hover:text-red-500 transition-colors cursor-pointer"
-              >
-                <RefreshCw className="w-3.5 h-3.5" />
-              </button>
+              {feedbackList.length > 0 && (
+                <button
+                  onClick={handleReset}
+                  className="px-2.5 py-1 bg-red-50 hover:bg-red-100 text-red-600 text-xs font-bold rounded-lg border border-red-200 transition-all flex items-center gap-1 cursor-pointer"
+                  title="Smazat všechny podněty a vyčistit plochu"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  <span>Smazat vše</span>
+                </button>
+              )}
             </div>
           </div>
 
           {/* Dynamic Real-time List of Submitted Teacher Feedback */}
           <div className="flex-1 overflow-y-auto space-y-2 sm:space-y-2.5 max-h-[260px] sm:max-h-[320px] md:max-h-[360px] pr-1">
             {feedbackList.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-48 text-center p-6 text-gray-400 bg-white/60 rounded-2xl border border-dashed border-gray-200">
-                <MessageSquarePlus className="w-8 h-8 mb-2 opacity-30 text-gml-green-600" />
-                <p className="text-xs sm:text-sm font-semibold text-gray-600">Zatím žádné podněty</p>
-                <p className="text-[11px] text-gray-400 mt-0.5">Podněty odeslané z mobilů učitelů se zde zobrazí živě v reálném čase.</p>
+              <div className="flex flex-col items-center justify-center h-52 text-center p-6 text-gray-400 bg-white/70 rounded-2xl border-2 border-dashed border-gml-yellow-200">
+                <MessageSquarePlus className="w-10 h-10 mb-2.5 text-gml-yellow-600/50 animate-bounce" />
+                <p className="text-sm font-bold text-gml-slate-900">Plocha je připravena pro podněty ze sborovny</p>
+                <p className="text-xs text-gray-500 mt-1 max-w-sm">
+                  Naskenujte QR kód vlevo a odešlete svůj požadavek. Podněty se zde ihned zobrazí v reálném čase.
+                </p>
               </div>
             ) : (
               feedbackList.map((item, idx) => (
                 <div
-                  key={idx}
-                  className="p-3 sm:p-3.5 rounded-2xl bg-white border border-gray-200 shadow-2xs hover:shadow-xs transition-all flex items-start gap-2.5 sm:gap-3 animate-fade-in"
+                  key={item.id || idx}
+                  className="p-3 sm:p-3.5 rounded-2xl bg-white border border-gray-200 shadow-2xs hover:shadow-xs transition-all flex items-start justify-between gap-2.5 group animate-fade-in"
                 >
-                  <span className="w-5 h-5 sm:w-6 sm:h-6 rounded-lg bg-gml-yellow-100 text-gml-yellow-800 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">
-                    #{idx + 1}
-                  </span>
-                  <p className="text-xs sm:text-sm text-gml-slate-800 font-medium leading-relaxed">
-                    {item}
-                  </p>
+                  <div className="flex items-start gap-2.5 sm:gap-3 flex-1 min-w-0">
+                    <span className="w-5 h-5 sm:w-6 sm:h-6 rounded-lg bg-gml-yellow-100 text-gml-yellow-800 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">
+                      #{idx + 1}
+                    </span>
+                    <p className="text-xs sm:text-sm text-gml-slate-800 font-medium leading-relaxed break-words">
+                      {item.text}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => handleDeleteItem(item.id)}
+                    className="opacity-0 group-hover:opacity-100 text-gray-300 hover:text-red-500 transition-all p-1 shrink-0 cursor-pointer rounded-lg hover:bg-red-50"
+                    title="Smazat tento podnět"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
                 </div>
               ))
             )}

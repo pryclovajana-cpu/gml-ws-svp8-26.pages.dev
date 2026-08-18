@@ -159,26 +159,22 @@ class RealtimeService {
       }
     }
 
-    if (pollId === 'leadership') {
-      const initialLeadershipState: PollState = {
-        textResponses: [
-          { id: 'l1', text: 'Více společného času pro setkávání předmětových komisí během školního roku.', timestamp: Date.now() - 300000 },
-          { id: 'l2', text: 'Metodickou podporu při formulaci nových očekávaných výstupů učení (OVU).', timestamp: Date.now() - 240000 },
-          { id: 'l3', text: 'Jasný harmonogram a garanci, že ŠVP nebude příliš často administrativně měněno.', timestamp: Date.now() - 180000 },
-          { id: 'l4', text: 'Snížení úvazku či finanční ohodnocení pro koordinátory tvorby ŠVP.', timestamp: Date.now() - 120000 },
-        ],
-        scaleResponses: [],
-      };
-      this.savePollState(pollId, initialLeadershipState, false);
-      return initialLeadershipState;
-    }
-
     const emptyDefaultState: PollState = {
       textResponses: [],
       scaleResponses: [],
     };
 
     return emptyDefaultState;
+  }
+
+  public deleteTextVote(pollId: string, id: string) {
+    const current = this.getPollState(pollId);
+    const updated: PollState = {
+      ...current,
+      textResponses: current.textResponses.filter((r) => r.id !== id),
+    };
+    this.savePollState(pollId, updated);
+    this.notifyListeners(pollId, updated);
   }
 
   private savePollState(pollId: string, state: PollState, broadcastToCloud = true) {
