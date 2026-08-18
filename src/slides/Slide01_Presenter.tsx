@@ -4,6 +4,12 @@ import { EditableText } from '../context/AdminEditContext';
 export const Slide01_Presenter: React.FC = () => {
   const leftMilestones = [
     {
+      id: 'l0',
+      badge: 'Vzdělání',
+      title: 'PedF Univerzity Karlovy',
+      desc: 'Speciální pedagogika, psychologie a systematický rozvoj nadání a talentu.',
+    },
+    {
       id: 'l1',
       badge: 'Revize RVP',
       title: 'NPI ČR',

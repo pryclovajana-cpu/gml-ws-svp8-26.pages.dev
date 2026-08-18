@@ -14,7 +14,8 @@ interface AdminEditContextType {
 }
 
 const STORAGE_KEY = 'gml_slide_text_edits_v2';
-const ADMIN_PASSWORD = 'admin';
+const NTFY_TEXT_TOPIC = 'gml_ws_svp8_26_text_sync_v4';
+const NTFY_TEXT_URL = `https://ntfy.sh/${NTFY_TEXT_TOPIC}`;
 
 const AdminEditContext = createContext<AdminEditContextType | undefined>(undefined);
 
@@ -39,6 +40,58 @@ export const AdminEditProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     }
     return {};
   });
+
+  // Cross-device cloud sync: Automatically receive and broadcast custom texts across devices
+  useEffect(() => {
+    const fetchCloudEdits = async () => {
+      try {
+        const res = await fetch(`${NTFY_TEXT_URL}/json?poll=1&since=48h`);
+        if (res.ok) {
+          const text = await res.text();
+          const lines = text.trim().split('\n');
+          let merged: EditableContentMap = {};
+          for (const line of lines) {
+            if (!line.trim()) continue;
+            try {
+              const data = JSON.parse(line);
+              if (data && data.message) {
+                const msg = JSON.parse(data.message);
+                if (msg && msg.textMap) {
+                  merged = { ...merged, ...msg.textMap };
+                }
+              }
+            } catch (e) {}
+          }
+          if (Object.keys(merged).length > 0) {
+            setTextMap((prev) => ({ ...merged, ...prev }));
+          }
+        }
+      } catch (e) {}
+    };
+
+    fetchCloudEdits();
+
+    // Broadcast existing local edits to cloud on startup
+    if (typeof window !== 'undefined' && Object.keys(textMap).length > 0) {
+      try {
+        fetch(NTFY_TEXT_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ textMap, timestamp: Date.now() }),
+        }).catch(() => {});
+      } catch (e) {}
+    }
+  }, []);
+
+  const broadcastEditsToCloud = (updated: EditableContentMap) => {
+    try {
+      fetch(NTFY_TEXT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ textMap: updated, timestamp: Date.now() }),
+      }).catch(() => {});
+    } catch (e) {}
+  };
 
   const requestToggle = () => {
     if (isAdminMode) {
@@ -97,6 +150,7 @@ export const AdminEditProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       } catch (e) {
         console.error('Failed to save slide text edits', e);
       }
+      broadcastEditsToCloud(updated);
       return updated;
     });
   };
@@ -107,6 +161,7 @@ export const AdminEditProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       localStorage.removeItem('gml_slide_text_edits_v1');
       localStorage.removeItem('gml_slide_text_edits_v2');
     } catch (e) {}
+    broadcastEditsToCloud({});
   };
 
   const getAllEditsJson = (): string => {
