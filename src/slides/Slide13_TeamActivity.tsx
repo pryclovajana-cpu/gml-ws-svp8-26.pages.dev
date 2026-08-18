@@ -160,14 +160,6 @@ export const Slide13_TeamActivity: React.FC = () => {
           </div>
         </div>
       </div>
-
-      {/* Bottom Hint */}
-      <div className="p-3.5 sm:p-4 bg-gray-50 border border-gray-200 rounded-2xl text-center text-xs sm:text-sm font-semibold text-gml-slate-800">
-        <EditableText
-          id="s13_bottom_hint"
-          defaultText="Výstupy komisí poslouží jako přímý podklad pro koordinační tým ŠVP."
-        />
-      </div>
     </div>
   );
 };
