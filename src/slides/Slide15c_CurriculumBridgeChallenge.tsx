@@ -19,7 +19,7 @@ export const Slide15c_CurriculumBridgeChallenge: React.FC = () => {
         <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold font-display text-gml-slate-900 leading-snug">
           <EditableText
             id="s15c_title"
-            defaultText="Propojení modelového ŠVP a ŠVP 4letého gymnázia"
+            defaultText="Propojení modelového ŠVP a nového ŠVP čtyřletého gymnázia"
           />
         </h2>
       </div>
