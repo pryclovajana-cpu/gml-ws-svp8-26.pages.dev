@@ -103,7 +103,7 @@ export const Slide09_GiftedInfographic: React.FC = () => {
               </span>
             </div>
             <h3 className="text-lg sm:text-xl font-bold font-display text-gml-slate-900 flex items-center gap-2">
-              <EditableText id="s9_gml_heading" defaultText="Všech 30 žáků je  mimořádně nadaných!" />{' '}
+              <EditableText id="s9_gml_heading" defaultText="Všech 30 žáků je mimořádně nadaných!" />{' '}
               <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-gml-yellow-600 shrink-0" />
             </h3>
             <p className="text-xs text-gml-slate-700 mt-1 font-medium">
