@@ -3,8 +3,7 @@ import { Clock, Play, Pause, RotateCcw, FileText, CheckCircle2 } from 'lucide-re
 import { EditableText } from '../context/AdminEditContext';
 
 export const Slide13_TeamActivity: React.FC = () => {
-  const [mode, setMode] = useState<'work' | 'share'>('work');
-  const [timeLeft, setTimeLeft] = useState<number>(600); // 10 min
+  const [timeLeft, setTimeLeft] = useState<number>(300); // 5 min
   const [isRunning, setIsRunning] = useState<boolean>(false);
 
   useEffect(() => {
@@ -19,15 +18,9 @@ export const Slide13_TeamActivity: React.FC = () => {
     return () => clearInterval(interval);
   }, [isRunning, timeLeft]);
 
-  const switchMode = (newMode: 'work' | 'share') => {
-    setMode(newMode);
-    setIsRunning(false);
-    setTimeLeft(newMode === 'work' ? 600 : 900);
-  };
-
   const resetTimer = () => {
     setIsRunning(false);
-    setTimeLeft(mode === 'work' ? 600 : 900);
+    setTimeLeft(300);
   };
 
   const formatTime = (seconds: number) => {
@@ -49,26 +42,11 @@ export const Slide13_TeamActivity: React.FC = () => {
           </h2>
         </div>
 
-        {/* Built-in Countdown Timer Controls */}
+        {/* Built-in 5-Minute Countdown Timer Controls */}
         <div className="flex items-center gap-2 sm:gap-3 bg-white p-2.5 sm:p-3 rounded-3xl border border-gml-green-200 shadow-sm shrink-0 self-start md:self-auto">
-          <div className="flex items-center gap-1 bg-gray-100 p-1 rounded-2xl text-xs font-bold">
-            <button
-              onClick={() => switchMode('work')}
-              className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-xl transition-all cursor-pointer ${
-                mode === 'work' ? 'bg-gml-green-600 text-white shadow-sm' : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              Práce (10 min)
-            </button>
-            <button
-              onClick={() => switchMode('share')}
-              className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-xl transition-all cursor-pointer ${
-                mode === 'share' ? 'bg-gml-yellow-500 text-gml-slate-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              Sdílení (15 min)
-            </button>
-          </div>
+          <span className="px-3 py-1.5 bg-gml-green-100/80 text-gml-green-800 border border-gml-green-300 rounded-xl text-xs font-black tracking-wide">
+            5 min
+          </span>
 
           <div className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 font-mono font-extrabold text-xl sm:text-2xl text-gml-slate-900">
             <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-gml-green-600 animate-pulse" />
@@ -88,7 +66,7 @@ export const Slide13_TeamActivity: React.FC = () => {
             <button
               onClick={resetTimer}
               className="p-2 rounded-xl bg-gray-100 text-gray-600 hover:bg-gray-200 transition-all cursor-pointer"
-              title="Vynulovat"
+              title="Vynulovat na 5:00"
             >
               <RotateCcw className="w-4 h-4" />
             </button>
