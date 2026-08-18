@@ -60,10 +60,6 @@ export const Slide14_SubjectIntegration: React.FC = () => {
                   <EditableText id={`s14_${p.id}_desc`} defaultText={p.desc} />
                 </p>
               </div>
-
-              <div className="pt-2 border-t border-black/5 text-[10px] sm:text-[11px] font-bold text-gray-400">
-                GML 8G Synergie
-              </div>
             </div>
           );
         })}
