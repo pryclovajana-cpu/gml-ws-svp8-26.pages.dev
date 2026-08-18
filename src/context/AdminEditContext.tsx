@@ -1,5 +1,4 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { Lock, X, Check, KeyRound } from 'lucide-react';
 import { EditableContentMap } from '../types';
 
 interface AdminEditContextType {
@@ -13,7 +12,6 @@ interface AdminEditContextType {
   hasEdits: boolean;
 }
 
-const STORAGE_KEY = 'gml_slide_text_edits_v2';
 const NTFY_TEXT_TOPIC = 'gml_ws_svp8_26_text_sync_v4';
 const NTFY_TEXT_URL = `https://ntfy.sh/${NTFY_TEXT_TOPIC}`;
 
@@ -21,9 +19,6 @@ const AdminEditContext = createContext<AdminEditContextType | undefined>(undefin
 
 export const AdminEditProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isAdminMode, setIsAdminMode] = useState<boolean>(false);
-  const [showPasswordModal, setShowPasswordModal] = useState<boolean>(false);
-  const [passwordInput, setPasswordInput] = useState<string>('');
-  const [passwordError, setPasswordError] = useState<boolean>(false);
 
   const [textMap, setTextMap] = useState<EditableContentMap>(() => {
     if (typeof window !== 'undefined') {
@@ -94,27 +89,7 @@ export const AdminEditProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   };
 
   const requestToggle = () => {
-    if (isAdminMode) {
-      // Exit admin mode without password
-      setIsAdminMode(false);
-    } else {
-      // Prompt for password
-      setPasswordInput('');
-      setPasswordError(false);
-      setShowPasswordModal(true);
-    }
-  };
-
-  const handlePasswordSubmit = () => {
-    const clean = passwordInput.trim().toLowerCase();
-    if (clean === ADMIN_PASSWORD || clean === '2026' || clean === 'gml' || clean === 'lerch' || clean === '1234') {
-      setIsAdminMode(true);
-      setShowPasswordModal(false);
-      setPasswordError(false);
-      setPasswordInput('');
-    } else {
-      setPasswordError(true);
-    }
+    setIsAdminMode((prev) => !prev);
   };
 
   // Global shortcut handler: Ctrl + Shift + E
@@ -127,7 +102,7 @@ export const AdminEditProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isAdminMode]);
+  }, []);
 
   // Sync to body class for CSS highlighting
   useEffect(() => {
@@ -183,95 +158,6 @@ export const AdminEditProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       }}
     >
       {children}
-
-      {/* Admin Password Protected Modal Dialog (No <form> to prevent browser password manager popup) */}
-      {showPasswordModal && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm select-none animate-fade-in">
-          <div
-            className="bg-white max-w-sm w-full rounded-3xl shadow-2xl border border-gml-green-200 p-6 space-y-4"
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                e.preventDefault();
-                handlePasswordSubmit();
-              } else if (e.key === 'Escape') {
-                setShowPasswordModal(false);
-              }
-            }}
-          >
-            <div className="flex items-center justify-between border-b border-gray-100 pb-3">
-              <div className="flex items-center gap-2.5">
-                <div className="p-2 bg-amber-100 text-amber-800 rounded-xl">
-                  <Lock className="w-5 h-5" />
-                </div>
-                <h3 className="text-base font-extrabold font-display text-gml-slate-900">
-                  Režim úprav prezentace
-                </h3>
-              </div>
-              <button
-                type="button"
-                onClick={() => setShowPasswordModal(false)}
-                className="p-1.5 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-all cursor-pointer"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            <div className="space-y-3 pt-1">
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-gray-600 block">
-                  Zadejte administrátorské heslo:
-                </label>
-                <div className="relative">
-                  <KeyRound className="w-4 h-4 absolute left-3.5 top-3.5 text-gray-400" />
-                  <input
-                    type="password"
-                    autoFocus
-                    autoComplete="off"
-                    autoCorrect="off"
-                    autoCapitalize="off"
-                    spellCheck={false}
-                    data-lpignore="true"
-                    data-form-type="other"
-                    placeholder="Heslo..."
-                    value={passwordInput}
-                    onChange={(e) => {
-                      setPasswordInput(e.target.value);
-                      if (passwordError) setPasswordError(false);
-                    }}
-                    className={`w-full pl-10 pr-4 py-2.5 bg-gray-50 border rounded-2xl text-sm focus:outline-none focus:bg-white transition-all ${
-                      passwordError
-                        ? 'border-red-400 ring-2 ring-red-200 bg-red-50/50'
-                        : 'border-gray-200 focus:ring-2 focus:ring-gml-green-500'
-                    }`}
-                  />
-                </div>
-                {passwordError && (
-                  <p className="text-xs font-bold text-red-600 pt-0.5 animate-bounce">
-                    Nesprávné heslo. Zkuste to znovu.
-                  </p>
-                )}
-              </div>
-
-              <div className="flex items-center gap-2 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setShowPasswordModal(false)}
-                  className="flex-1 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs rounded-xl transition-all cursor-pointer"
-                >
-                  Zrušit
-                </button>
-                <button
-                  type="button"
-                  onClick={handlePasswordSubmit}
-                  className="flex-1 py-2.5 bg-gml-green-600 hover:bg-gml-green-700 text-white font-bold text-xs rounded-xl transition-all shadow-md cursor-pointer flex items-center justify-center gap-1.5"
-                >
-                  <Check className="w-4 h-4" /> Odemknout
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </AdminEditContext.Provider>
   );
 };
