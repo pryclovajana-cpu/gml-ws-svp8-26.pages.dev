@@ -15,10 +15,17 @@ export const Slide17_LeadershipFeedback: React.FC = () => {
 
   // Subscribe to real-time live submissions (from mobile phones & cross-tab)
   useEffect(() => {
+    realtimeService.fetchCloudHistory();
+    const interval = setInterval(() => {
+      realtimeService.fetchCloudHistory();
+    }, 2000);
+
     const unsubscribe = realtimeService.subscribe('leadership', (newState) => {
       setFeedbackList(newState.textResponses);
     });
+
     return () => {
+      clearInterval(interval);
       unsubscribe();
     };
   }, []);

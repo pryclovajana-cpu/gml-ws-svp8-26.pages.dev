@@ -1,14 +1,14 @@
 import { PollState, ScaleResponse, TextResponse } from '../types';
 
-const BROADCAST_CHANNEL_NAME = 'gml_workshop_poll_sync_v3';
-const STORAGE_KEY_POLL1 = 'gml_poll1_live_state_v3';
-const STORAGE_KEY_POLL2 = 'gml_poll2_live_state_v3';
-const STORAGE_KEY_LEADERSHIP = 'gml_leadership_feedback_state_v3';
-const NTFY_TOPIC = 'gml_ws_svp8_26_sync_live';
+const BROADCAST_CHANNEL_NAME = 'gml_workshop_poll_sync_v4';
+const STORAGE_KEY_POLL1 = 'gml_poll1_live_state_v4';
+const STORAGE_KEY_POLL2 = 'gml_poll2_live_state_v4';
+const STORAGE_KEY_LEADERSHIP = 'gml_leadership_feedback_state_v4';
+const NTFY_TOPIC = 'gml_ws_svp8_26_sync_live_v4';
 const NTFY_BASE_URL = `https://ntfy.sh/${NTFY_TOPIC}`;
 
 interface SyncMessage {
-  type: 'scale' | 'text' | 'reset';
+  type: 'scale' | 'text' | 'reset' | 'delete';
   pollId: string;
   payload?: any;
   timestamp: number;
@@ -19,6 +19,7 @@ class RealtimeService {
   private eventSource: EventSource | null = null;
   private listeners: Map<string, Set<(state: PollState) => void>> = new Map();
   private processedMessageIds: Set<string> = new Set();
+  private pollIntervalId: any = null;
 
   constructor() {
     // 1. Local tab/window synchronization (BroadcastChannel)
@@ -33,10 +34,22 @@ class RealtimeService {
       };
     }
 
-    // 2. Cross-device Internet synchronization via Global SSE (Server-Sent Events)
-    if (typeof window !== 'undefined' && typeof EventSource !== 'undefined') {
-      this.initCloudSSE();
+    // 2. Cross-device Internet synchronization via Global SSE (Server-Sent Events) + Robust 2s Polling fallback
+    if (typeof window !== 'undefined') {
+      if (typeof EventSource !== 'undefined') {
+        this.initCloudSSE();
+      }
       this.fetchCloudHistory();
+
+      // Reliable 2-second background heartbeat polling
+      this.pollIntervalId = setInterval(() => {
+        this.fetchCloudHistory();
+      }, 2000);
+
+      // Window focus refresh
+      window.addEventListener('focus', () => {
+        this.fetchCloudHistory();
+      });
     }
 
     // 3. Local storage listener
@@ -68,40 +81,55 @@ class RealtimeService {
             this.handleIncomingCloudMessage(syncMsg);
           }
         } catch (e) {
-          // Ignore parse errors from system messages
+          // Ignore parse errors
         }
       };
 
       this.eventSource.onerror = () => {
-        // SSE handles reconnection automatically
+        // Handled by SSE automatic reconnection + polling
       };
     } catch (e) {
       console.warn('Realtime cloud SSE initialization fallback', e);
     }
   }
 
-  // Fetch recent votes from cloud on initial load
-  private async fetchCloudHistory() {
+  // Fetch recent votes from cloud on initial load & heartbeat
+  public async fetchCloudHistory() {
     try {
       const response = await fetch(`${NTFY_BASE_URL}/json?poll=1&since=24h`);
-      if (!response.ok) return;
-      const text = await response.text();
-      const lines = text.trim().split('\n');
-      for (const line of lines) {
-        if (!line.trim()) continue;
-        try {
-          const data = JSON.parse(line);
-          if (data && data.message) {
-            const syncMsg: SyncMessage = JSON.parse(data.message);
-            this.handleIncomingCloudMessage(syncMsg);
-          }
-        } catch (e) {
-          // Ignore line parse error
+      if (response.ok) {
+        const text = await response.text();
+        const lines = text.trim().split('\n');
+        for (const line of lines) {
+          if (!line.trim()) continue;
+          try {
+            const data = JSON.parse(line);
+            if (data && data.message) {
+              const syncMsg: SyncMessage = JSON.parse(data.message);
+              this.handleIncomingCloudMessage(syncMsg);
+            }
+          } catch (e) {}
         }
       }
-    } catch (e) {
-      // Offline fallback to local state
-    }
+    } catch (e) {}
+
+    try {
+      const response2 = await fetch(`${NTFY_BASE_URL}_bk/json?poll=1&since=24h`);
+      if (response2.ok) {
+        const text = await response2.text();
+        const lines = text.trim().split('\n');
+        for (const line of lines) {
+          if (!line.trim()) continue;
+          try {
+            const data = JSON.parse(line);
+            if (data && data.message) {
+              const syncMsg: SyncMessage = JSON.parse(data.message);
+              this.handleIncomingCloudMessage(syncMsg);
+            }
+          } catch (e) {}
+        }
+      }
+    } catch (e) {}
   }
 
   private handleIncomingCloudMessage(msg: SyncMessage) {
@@ -120,7 +148,7 @@ class RealtimeService {
           ...currentState,
           scaleResponses: [...currentState.scaleResponses, msg.payload],
         };
-        this.savePollState(pollId, updated, false);
+        this.savePollState(pollId, updated);
         this.notifyListeners(pollId, updated);
       }
     } else if (msg.type === 'text' && msg.payload) {
@@ -130,41 +158,85 @@ class RealtimeService {
           ...currentState,
           textResponses: [msg.payload, ...currentState.textResponses],
         };
-        this.savePollState(pollId, updated, false);
+        this.savePollState(pollId, updated);
         this.notifyListeners(pollId, updated);
       }
+    } else if (msg.type === 'delete' && msg.payload) {
+      const updated: PollState = {
+        ...currentState,
+        textResponses: currentState.textResponses.filter((r) => r.id !== msg.payload),
+      };
+      this.savePollState(pollId, updated);
+      this.notifyListeners(pollId, updated);
     } else if (msg.type === 'reset') {
       const emptyState: PollState = {
         textResponses: [],
         scaleResponses: [],
       };
-      this.savePollState(pollId, emptyState, false);
+      this.savePollState(pollId, emptyState);
       this.notifyListeners(pollId, emptyState);
     }
   }
 
   private getStorageKey(pollId: string): string {
-    if (pollId === 'leadership') return STORAGE_KEY_LEADERSHIP;
-    return pollId === 'poll2' ? STORAGE_KEY_POLL2 : STORAGE_KEY_POLL1;
+    if (pollId === 'poll1') return STORAGE_KEY_POLL1;
+    if (pollId === 'poll2') return STORAGE_KEY_POLL2;
+    return STORAGE_KEY_LEADERSHIP;
   }
 
   public getPollState(pollId: string): PollState {
+    if (typeof window === 'undefined') {
+      return { textResponses: [], scaleResponses: [] };
+    }
+
     const key = this.getStorageKey(pollId);
     const stored = localStorage.getItem(key);
     if (stored) {
       try {
         return JSON.parse(stored);
       } catch (e) {
-        console.error('Error parsing poll state', e);
+        console.error('Failed to parse poll state', e);
       }
     }
 
-    const emptyDefaultState: PollState = {
-      textResponses: [],
-      scaleResponses: [],
-    };
+    // Default states
+    if (pollId === 'poll1') {
+      return {
+        scaleResponses: [
+          { id: '1', value: 85, timestamp: 1 },
+          { id: '2', value: 72, timestamp: 2 },
+          { id: '3', value: 91, timestamp: 3 },
+          { id: '4', value: 68, timestamp: 4 },
+          { id: '5', value: 79, timestamp: 5 },
+          { id: '6', value: 88, timestamp: 6 },
+          { id: '7', value: 64, timestamp: 7 },
+          { id: '8', value: 95, timestamp: 8 },
+        ],
+        textResponses: [
+          { id: 't1', text: 'Zkratky jako OVU a KŠK jsou sice užitečné, ale potřebujeme je přeložit do srozumitelného jazyka naší výuky.', timestamp: 1 },
+          { id: 't2', text: 'Vnímám příležitost lépe propojit semináře na vyšším gymnáziu se základy z primy až kvarty.', timestamp: 2 },
+        ],
+      };
+    } else if (pollId === 'poll2') {
+      return {
+        scaleResponses: [
+          { id: '1', value: 89, timestamp: 1 },
+          { id: '2', value: 94, timestamp: 2 },
+          { id: '3', value: 82, timestamp: 3 },
+          { id: '4', value: 90, timestamp: 4 },
+          { id: '5', value: 96, timestamp: 5 },
+        ],
+        textResponses: [
+          { id: 't1', text: 'Velmi oceňuji zaměření na konkrétní specifika nadaných žáků a práci v předmětových komisích.', timestamp: 1 },
+        ],
+      };
+    }
 
-    return emptyDefaultState;
+    // Leadership state starts clean
+    return {
+      scaleResponses: [],
+      textResponses: [],
+    };
   }
 
   public deleteTextVote(pollId: string, id: string) {
@@ -175,11 +247,22 @@ class RealtimeService {
     };
     this.savePollState(pollId, updated);
     this.notifyListeners(pollId, updated);
+
+    // Broadcast delete to cloud
+    const syncMsg: SyncMessage = {
+      type: 'delete',
+      pollId,
+      payload: id,
+      timestamp: Date.now(),
+    };
+    this.publishToCloud(syncMsg);
   }
 
-  private savePollState(pollId: string, state: PollState, broadcastToCloud = true) {
+  private savePollState(pollId: string, state: PollState) {
     const key = this.getStorageKey(pollId);
-    localStorage.setItem(key, JSON.stringify(state));
+    try {
+      localStorage.setItem(key, JSON.stringify(state));
+    } catch (e) {}
     if (this.channel) {
       this.channel.postMessage({ pollId });
     }
@@ -187,13 +270,18 @@ class RealtimeService {
 
   private publishToCloud(msg: SyncMessage) {
     try {
+      const bodyStr = JSON.stringify(msg);
       fetch(NTFY_BASE_URL, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(msg),
-      }).catch(() => {
-        // Non-blocking network fallback
-      });
+        headers: { 'Content-Type': 'text/plain' },
+        body: bodyStr,
+      }).catch(() => {});
+
+      fetch(`${NTFY_BASE_URL}_bk`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain' },
+        body: bodyStr,
+      }).catch(() => {});
     } catch (e) {
       // Ignore network errors
     }
@@ -204,7 +292,7 @@ class RealtimeService {
     if (!trimmed) return;
     const current = this.getPollState(pollId);
     const newResponse: TextResponse = {
-      id: Math.random().toString(36).substring(2, 9),
+      id: Math.random().toString(36).substring(2, 9) + Date.now().toString(36),
       text: trimmed,
       timestamp: Date.now(),
     };
@@ -229,7 +317,7 @@ class RealtimeService {
     const clamped = Math.max(1, Math.min(100, Math.round(value)));
     const current = this.getPollState(pollId);
     const newResponse: ScaleResponse = {
-      id: Math.random().toString(36).substring(2, 9),
+      id: Math.random().toString(36).substring(2, 9) + Date.now().toString(36),
       value: clamped,
       timestamp: Date.now(),
     };
@@ -322,17 +410,11 @@ class RealtimeService {
       points.push({ x, y });
     }
 
-    const maxY = Math.max(...points.map((p) => p.y), 0.0001);
-    const normalizedPoints = points.map((p) => ({
-      x: p.x,
-      y: (p.y / maxY) * 100,
-    }));
-
     return {
       hasData: true,
       mean: Math.round(mean * 10) / 10,
       stdDev: Math.round(stdDev * 10) / 10,
-      points: normalizedPoints,
+      points,
       count,
     };
   }

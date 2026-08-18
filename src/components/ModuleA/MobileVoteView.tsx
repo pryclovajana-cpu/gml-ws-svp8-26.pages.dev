@@ -1,23 +1,25 @@
-import React, { useState } from 'react';
-import { Send, CheckCircle2, Sparkles, Sliders, MessageSquarePlus } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Send, CheckCircle2, Sparkles, Sliders, MessageSquarePlus, RefreshCw } from 'lucide-react';
 import { realtimeService } from '../../services/realtimeService';
 import { GmlLogo } from '../GmlLogo';
 
 export const MobileVoteView: React.FC = () => {
-  const [pollId, setPollId] = useState<'poll1' | 'poll2' | 'leadership'>('poll1');
+  const [pollId, setPollId] = useState<'poll1' | 'poll2' | 'leadership'>('leadership');
   const [textVote, setTextVote] = useState('');
   const [scaleVote, setScaleVote] = useState<number>(65);
   const [submittedText, setSubmittedText] = useState(false);
   const [submittedScale, setSubmittedScale] = useState(false);
 
-  // Read URL query parameter if pollId specified
-  React.useEffect(() => {
+  // Read URL query parameter or hash if pollId specified
+  useEffect(() => {
     if (typeof window !== 'undefined') {
-      const hash = window.location.hash;
-      if (hash.includes('poll=leadership') || hash.includes('poll=vedeni')) {
+      const fullUrl = window.location.href.toLowerCase();
+      if (fullUrl.includes('poll=leadership') || fullUrl.includes('poll=vedeni') || fullUrl.includes('leadership')) {
         setPollId('leadership');
-      } else if (hash.includes('poll=poll2')) {
+      } else if (fullUrl.includes('poll=poll2') || fullUrl.includes('poll2')) {
         setPollId('poll2');
+      } else if (fullUrl.includes('poll=poll1') || fullUrl.includes('poll1')) {
+        setPollId('poll1');
       }
     }
   }, []);
@@ -27,9 +29,10 @@ export const MobileVoteView: React.FC = () => {
     if (!textVote.trim()) return;
     realtimeService.addTextVote(pollId, textVote);
     setSubmittedText(true);
+    setTextVote('');
     setTimeout(() => {
-      setTextVote('');
-    }, 500);
+      setSubmittedText(false);
+    }, 4000);
   };
 
   const handleSendScale = (e: React.FormEvent) => {
@@ -65,18 +68,8 @@ export const MobileVoteView: React.FC = () => {
         {/* Poll Switcher */}
         <div className="flex flex-wrap items-center justify-center gap-1.5 mt-3 bg-white p-1 rounded-xl border border-gray-200 shadow-sm text-xs font-bold">
           <button
-            onClick={() => { setPollId('poll1'); setSubmittedText(false); setSubmittedScale(false); }}
-            className={`px-2.5 py-1.5 rounded-lg transition-all ${
-              pollId === 'poll1'
-                ? 'bg-gml-green-600 text-white shadow-sm'
-                : 'text-gray-600 hover:text-gray-900'
-            }`}
-          >
-            Anketa 1
-          </button>
-          <button
             onClick={() => { setPollId('leadership'); setSubmittedText(false); setSubmittedScale(false); }}
-            className={`px-2.5 py-1.5 rounded-lg transition-all ${
+            className={`px-3 py-1.5 rounded-lg transition-all ${
               pollId === 'leadership'
                 ? 'bg-gml-green-600 text-white shadow-sm'
                 : 'text-gray-600 hover:text-gray-900'
@@ -85,14 +78,24 @@ export const MobileVoteView: React.FC = () => {
             Podnět vedení
           </button>
           <button
+            onClick={() => { setPollId('poll1'); setSubmittedText(false); setSubmittedScale(false); }}
+            className={`px-3 py-1.5 rounded-lg transition-all ${
+              pollId === 'poll1'
+                ? 'bg-gml-green-600 text-white shadow-sm'
+                : 'text-gray-600 hover:text-gray-900'
+            }`}
+          >
+            Anketa 1 (Úvod)
+          </button>
+          <button
             onClick={() => { setPollId('poll2'); setSubmittedText(false); setSubmittedScale(false); }}
-            className={`px-2.5 py-1.5 rounded-lg transition-all ${
+            className={`px-3 py-1.5 rounded-lg transition-all ${
               pollId === 'poll2'
                 ? 'bg-gml-green-600 text-white shadow-sm'
                 : 'text-gray-600 hover:text-gray-900'
             }`}
           >
-            Anketa 2
+            Anketa 2 (Závěr)
           </button>
         </div>
       </header>
@@ -114,108 +117,92 @@ export const MobileVoteView: React.FC = () => {
             </p>
           )}
 
-          {submittedText ? (
-            <div className="p-4 bg-gml-green-50 rounded-2xl text-center border border-gml-green-200">
-              <CheckCircle2 className="w-8 h-8 text-gml-green-600 mx-auto mb-1" />
-              <span className="text-sm font-bold text-gml-green-900 block">
-                Váš podnět byl úspěšně odeslán na plátno!
+          {submittedText && (
+            <div className="p-3.5 bg-gml-green-50 rounded-2xl text-center border border-gml-green-300 animate-fade-in flex items-center justify-center gap-2">
+              <CheckCircle2 className="w-5 h-5 text-gml-green-600 shrink-0" />
+              <span className="text-xs font-bold text-gml-green-900">
+                Podnět byl úspěšně odeslán na plátno! Můžete poslat další.
               </span>
-              <button
-                onClick={() => setSubmittedText(false)}
-                className="mt-3 text-xs text-gml-green-700 underline font-bold cursor-pointer"
-              >
-                + Odeslat další podnět
-              </button>
             </div>
-          ) : (
-            <form onSubmit={handleSendText} className="space-y-3">
-              <textarea
-                value={textVote}
-                onChange={(e) => setTextVote(e.target.value)}
-                placeholder={
-                  isLeadership
-                    ? 'Napište např.: Čas na hospitace, školení k AI, rozvrhové úpravy...'
-                    : 'Napište stručně vaše dojmy či otázku...'
-                }
-                rows={4}
-                className="w-full p-3.5 bg-gray-50 border border-gray-200 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-gml-green-500 focus:bg-white transition-all resize-none"
-              />
-              <button
-                type="submit"
-                disabled={!textVote.trim()}
-                className="w-full py-3 bg-gml-green-600 text-white font-bold text-sm rounded-2xl hover:bg-gml-green-700 disabled:opacity-40 transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
-              >
-                <Send className="w-4 h-4" /> {isLeadership ? 'Odeslat podnět pro vedení' : 'Odeslat odpověď'}
-              </button>
-            </form>
           )}
+
+          <form onSubmit={handleSendText} className="space-y-3">
+            <textarea
+              value={textVote}
+              onChange={(e) => setTextVote(e.target.value)}
+              placeholder={isLeadership ? "Např. Čas na hospitace, školení k AI, didaktické materiály..." : "Napište svůj postřeh..."}
+              rows={3}
+              className="w-full p-3 bg-gray-50 border border-gray-200 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-gml-green-500 focus:bg-white transition-all resize-none font-medium"
+            />
+            <button
+              type="submit"
+              disabled={!textVote.trim()}
+              className="w-full py-3 bg-gml-green-600 hover:bg-gml-green-700 active:scale-98 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold text-sm rounded-2xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
+            >
+              <Send className="w-4 h-4" />
+              <span>Odeslat na plátno</span>
+            </button>
+          </form>
         </div>
 
-        {/* Section 2: Scale 1-100 Slider (Only for Poll1 & Poll2) */}
+        {/* Section 2: Numerical Scale (Only for poll1 & poll2) */}
         {!isLeadership && (
-          <div className="bg-white p-5 rounded-3xl border border-gml-yellow-200 shadow-lg space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 text-gml-yellow-700">
-                <Sliders className="w-5 h-5" />
-                <h2 className="font-display font-bold text-base text-gml-slate-900">
-                  2. Důvěra na škále 1–100
-                </h2>
-              </div>
-              <span className="text-xl font-extrabold text-gml-yellow-600 font-display bg-gml-yellow-100 px-3 py-1 rounded-xl">
-                {scaleVote}
-              </span>
+          <div className="bg-white p-5 rounded-3xl border border-gml-green-200 shadow-lg space-y-4">
+            <div className="flex items-center gap-2 text-gml-green-700">
+              <Sliders className="w-5 h-5 shrink-0" />
+              <h2 className="font-display font-bold text-sm sm:text-base text-gml-slate-900">
+                {pollId === 'poll1'
+                  ? '2. Vaše důvěra v revizi ŠVP (1–100 %)'
+                  : '2. Závěrečná důvěra po workshopu (1–100 %)'}
+              </h2>
             </div>
 
-            <p className="text-xs text-gray-500">
-              Jakou máte důvěru v to, že nový ŠVP pomůže ke kvalitnějšímu vzdělávání na GML?
-            </p>
-
-            <form onSubmit={handleSendScale} className="space-y-4">
-              <div className="space-y-2">
-                <input
-                  type="range"
-                  min="1"
-                  max="100"
-                  value={scaleVote}
-                  onChange={(e) => setScaleVote(Number(e.target.value))}
-                  className="w-full h-3 bg-gml-yellow-100 rounded-lg appearance-none cursor-pointer accent-gml-green-600"
-                />
-                <div className="flex justify-between text-[11px] font-bold text-gray-400">
-                  <span>1 (Nízká)</span>
-                  <span>50</span>
-                  <span>100 (Vysoká)</span>
-                </div>
+            {submittedScale ? (
+              <div className="p-4 bg-gml-green-50 rounded-2xl text-center border border-gml-green-200">
+                <CheckCircle2 className="w-8 h-8 text-gml-green-600 mx-auto mb-1" />
+                <span className="text-sm font-bold text-gml-green-900 block">
+                  Hodnocení uloženo! ({scaleVote} %)
+                </span>
+                <p className="text-xs text-gml-green-700 mt-1">
+                  Vaše hodnocení se ihned promítlo do Gaussovy křivky na projekčním plátně.
+                </p>
               </div>
-
-              {submittedScale ? (
-                <div className="p-3 bg-gml-yellow-50 rounded-2xl text-center border border-gml-yellow-300">
-                  <CheckCircle2 className="w-6 h-6 text-gml-yellow-600 mx-auto mb-1" />
-                  <span className="text-xs font-bold text-gml-slate-800 block">
-                    Hlas {scaleVote}/100 zaznamenán na plátně!
-                  </span>
-                  <button
-                    type="submit"
-                    className="mt-2 text-[11px] text-gml-yellow-700 underline font-semibold"
-                  >
-                    Aktualizovat můj hlas
-                  </button>
+            ) : (
+              <form onSubmit={handleSendScale} className="space-y-4">
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center text-xs font-bold text-gray-500">
+                    <span>1 % (Skepticismus)</span>
+                    <span className="text-lg font-extrabold text-gml-green-700 font-mono">
+                      {scaleVote} %
+                    </span>
+                    <span>100 % (Velká důvěra)</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="1"
+                    max="100"
+                    value={scaleVote}
+                    onChange={(e) => setScaleVote(Number(e.target.value))}
+                    className="w-full accent-gml-green-600 h-2 bg-gray-200 rounded-lg cursor-pointer"
+                  />
                 </div>
-              ) : (
+
                 <button
                   type="submit"
-                  className="w-full py-3 bg-gml-yellow-500 text-gml-slate-900 font-bold text-sm rounded-2xl hover:bg-gml-yellow-400 transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
+                  className="w-full py-3 bg-gml-green-600 hover:bg-gml-green-700 active:scale-98 text-white font-bold text-sm rounded-2xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
                 >
-                  <Sparkles className="w-4 h-4" /> Odeslat hodnocení ({scaleVote}/100)
+                  <Sparkles className="w-4 h-4" />
+                  <span>Odeslat hodnocení ({scaleVote} %)</span>
                 </button>
-              )}
-            </form>
+              </form>
+            )}
           </div>
         )}
       </main>
 
       {/* Footer */}
-      <footer className="text-center text-[11px] text-gray-400 py-2">
-        Anonymní bezregistrační přístup • GML 2026
+      <footer className="text-center text-[11px] text-gray-500 font-medium pt-2 border-t border-gray-100">
+        Výsledky jsou v reálném čase přenášeny na prezentační plátno workshopu.
       </footer>
     </div>
   );
