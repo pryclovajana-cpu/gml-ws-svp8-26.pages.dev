@@ -1,5 +1,5 @@
 import React from 'react';
-import { BookOpen, KeyRound, Compass, Layers } from 'lucide-react';
+import { BookOpen, KeyRound, Compass, HeartHandshake } from 'lucide-react';
 import { EditableText } from '../context/AdminEditContext';
 
 export const Slide11_KeyChanges: React.FC = () => {
@@ -33,12 +33,12 @@ export const Slide11_KeyChanges: React.FC = () => {
     },
     {
       id: 'st4',
-      icon: Layers,
-      title: '4. Vzdělávací oblasti a OVU',
-      badge: '10 OBLASTÍ & FÁZE',
-      badgeColor: 'bg-purple-600 text-white',
-      desc: '10 vzdělávacích oblastí a závazné Očekávané výsledky učení (OVU) v 5. a 9. ročníku, členěné do fází Začátek, Na cestě a Splněno.',
-      color: 'border-purple-300 bg-purple-50/70 text-purple-900',
+      icon: HeartHandshake,
+      title: '4. OSV jako vzdělávací obor',
+      badge: 'NOVÝ OBOR RVP',
+      badgeColor: 'bg-pink-500 text-white',
+      desc: 'Vzdělávací obor Osobnostní a sociální výchova zahrnuje také etický a kariérový rozvoj žáka. Kontinuálně, průběžně na 1. a 2. stupni, systematicky a komplexně rozvíjí potřebné znalosti, dovednosti, hodnoty, postoje, které explicitně podporují odolnost žáka vedoucí ke zvládání běžných i náročných životních situací.',
+      color: 'border-pink-300 bg-pink-50/70 text-pink-900',
     },
   ];
 
@@ -54,7 +54,7 @@ export const Slide11_KeyChanges: React.FC = () => {
         </h2>
       </div>
 
-      {/* 4 Pillars Building Stones Grid (Exact RVP ZV Architecture) */}
+      {/* 4 Pillars Building Stones Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 my-auto py-2 sm:py-4">
         {stones.map((s) => {
           const Icon = s.icon;
