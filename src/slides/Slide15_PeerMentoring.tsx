@@ -106,16 +106,6 @@ export const Slide15_PeerMentoring: React.FC = () => {
           </div>
         </div>
       </div>
-
-      {/* Bottom Bold Takeaway Hint */}
-      <div className="p-3.5 sm:p-4 bg-gml-green-50 border border-gml-green-200 rounded-2xl text-center shadow-2xs">
-        <p className="text-xs sm:text-sm md:text-base font-extrabold text-gml-slate-900 tracking-wide">
-          <EditableText
-            id="s15_bottom_hint"
-            defaultText="Skvělá příležitost pro posílení role třídního učitele."
-          />
-        </p>
-      </div>
     </div>
   );
 };
