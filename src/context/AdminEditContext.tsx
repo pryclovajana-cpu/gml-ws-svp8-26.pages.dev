@@ -13,7 +13,7 @@ interface AdminEditContextType {
   hasEdits: boolean;
 }
 
-const STORAGE_KEY = 'gml_slide_text_edits_v1';
+const STORAGE_KEY = 'gml_slide_text_edits_v2';
 const ADMIN_PASSWORD = 'admin';
 
 const AdminEditContext = createContext<AdminEditContextType | undefined>(undefined);
