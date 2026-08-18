@@ -60,9 +60,9 @@ export const RiverProgressBar: React.FC<RiverProgressBarProps> = ({
         />
       </div>
 
-      <div className="max-w-[1920px] mx-auto px-3 sm:px-6 md:px-8 py-2 sm:py-2.5 flex items-center justify-between gap-2 sm:gap-4">
+      <div className="max-w-[1920px] mx-auto px-3 sm:px-6 md:px-8 py-2 sm:py-2.5 flex items-center justify-between gap-2 sm:gap-4 relative min-h-[56px] sm:min-h-[60px]">
         {/* Left: Chapter / Menu Button & Breadcrumb */}
-        <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+        <div className="flex items-center gap-2 sm:gap-3 min-w-0 max-w-[calc(50%-110px)]">
           <button
             type="button"
             onClick={onOpenDrawer}
@@ -77,14 +77,14 @@ export const RiverProgressBar: React.FC<RiverProgressBarProps> = ({
             <span className="text-[10px] sm:text-xs font-bold text-gml-green-700 uppercase tracking-widest truncate">
               {chapterTitle || 'ŠVP GML'}
             </span>
-            <span className="text-xs sm:text-sm font-extrabold text-gml-slate-900 truncate max-w-[200px] md:max-w-[400px] xl:max-w-[600px]">
+            <span className="text-xs sm:text-sm font-extrabold text-gml-slate-900 truncate">
               {slideTitle || 'Prezentace'}
             </span>
           </div>
         </div>
 
-        {/* Center: Slide Arrows & Number Counter */}
-        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+        {/* Center: Slide Arrows & Number Counter (ABSOLUTE 100% SCREEN CENTER LOCK) */}
+        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center gap-2 sm:gap-3 shrink-0 pointer-events-auto z-10">
           <button
             type="button"
             onClick={(e) => {
@@ -117,7 +117,7 @@ export const RiverProgressBar: React.FC<RiverProgressBarProps> = ({
         </div>
 
         {/* Right: Fullscreen & Live edit toggle */}
-        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 max-w-[calc(50%-110px)] justify-end">
           {isAdminMode && hasEdits && (
             <button
               type="button"
