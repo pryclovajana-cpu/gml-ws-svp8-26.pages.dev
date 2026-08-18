@@ -74,19 +74,8 @@ export const MobileVoteView: React.FC = () => {
           Gymnázium Matyáše Lercha • Workshop 25. 8. 2026
         </p>
 
-        {/* Clear Switcher for Manual Override */}
+        {/* Clear Switcher for Manual Override - Ordered: Anketa 1, Podněty vedení, Anketa 2 */}
         <div className="flex items-center justify-center gap-1.5 mt-3 bg-white p-1 rounded-xl border border-gray-200 shadow-sm text-xs font-bold">
-          <button
-            type="button"
-            onClick={() => { setPollId('leadership'); setSubmittedText(false); setSubmittedScale(false); }}
-            className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
-              isLeadership
-                ? 'bg-gml-yellow-500 text-white shadow-sm font-extrabold'
-                : 'text-gray-600 hover:text-gray-900'
-            }`}
-          >
-            Vedení
-          </button>
           <button
             type="button"
             onClick={() => { setPollId('poll1'); setSubmittedText(false); setSubmittedScale(false); }}
@@ -97,6 +86,17 @@ export const MobileVoteView: React.FC = () => {
             }`}
           >
             Anketa 1
+          </button>
+          <button
+            type="button"
+            onClick={() => { setPollId('leadership'); setSubmittedText(false); setSubmittedScale(false); }}
+            className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+              isLeadership
+                ? 'bg-gml-yellow-500 text-white shadow-sm font-extrabold'
+                : 'text-gray-600 hover:text-gray-900'
+            }`}
+          >
+            Podněty vedení
           </button>
           <button
             type="button"
@@ -176,7 +176,7 @@ export const MobileVoteView: React.FC = () => {
                   Hodnocení uloženo! ({scaleVote} %)
                 </span>
                 <p className="text-xs text-gml-green-700 mt-1">
-                  Vaše hodnocení se ihned promítlo do Gaussovy křivky na projekčním plátně.
+                  Vaše hodnocení se ihned promítlo na projekční plátno.
                 </p>
               </div>
             ) : (
