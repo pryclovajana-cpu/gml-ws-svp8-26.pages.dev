@@ -1,24 +1,25 @@
+import Peer, { DataConnection } from 'peerjs';
 import { PollState, ScaleResponse, TextResponse } from '../types';
 
-const BROADCAST_CHANNEL_NAME = 'gml_workshop_poll_sync_v5';
-const STORAGE_KEY_POLL1 = 'gml_poll1_live_state_v5';
-const STORAGE_KEY_POLL2 = 'gml_poll2_live_state_v5';
-const STORAGE_KEY_LEADERSHIP = 'gml_leadership_feedback_state_v5';
+const BROADCAST_CHANNEL_NAME = 'gml_workshop_poll_sync_v6';
+const STORAGE_KEY_POLL1 = 'gml_poll1_live_state_v6';
+const STORAGE_KEY_POLL2 = 'gml_poll2_live_state_v6';
+const STORAGE_KEY_LEADERSHIP = 'gml_leadership_feedback_state_v6';
 
-const CLOUD_CONTAINERS: Record<string, string> = {
-  leadership: 'ff8081819ff5b11001a01640eb8c46fb',
-  poll1: 'ff8081819ff5b11001a01640eca946fc',
-  poll2: 'ff8081819ff5b11001a01640edab46fd',
+export const PEER_HOST_IDS: Record<string, string> = {
+  leadership: 'gml-ws-2026-host-leadership',
+  poll1: 'gml-ws-2026-host-poll1',
+  poll2: 'gml-ws-2026-host-poll2',
 };
 
 class RealtimeService {
   private channel: BroadcastChannel | null = null;
   private listeners: Map<string, Set<(state: PollState) => void>> = new Map();
-  private pollIntervalId: any = null;
-  private isSyncing = false;
+  private hostPeers: Map<string, Peer> = new Map();
+  private clientPeer: Peer | null = null;
 
   constructor() {
-    // 1. Local tab/window synchronization (BroadcastChannel)
+    // 1. BroadcastChannel for same-device cross-tab communication
     if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
       this.channel = new BroadcastChannel(BROADCAST_CHANNEL_NAME);
       this.channel.onmessage = (event) => {
@@ -30,20 +31,7 @@ class RealtimeService {
       };
     }
 
-    // 2. Global Cloud Sync: Fast 1.5s Polling loop across all devices
-    if (typeof window !== 'undefined') {
-      this.fetchCloudHistory();
-
-      this.pollIntervalId = setInterval(() => {
-        this.fetchCloudHistory();
-      }, 1500);
-
-      window.addEventListener('focus', () => {
-        this.fetchCloudHistory();
-      });
-    }
-
-    // 3. Local storage listener
+    // 2. Storage event listener
     if (typeof window !== 'undefined') {
       window.addEventListener('storage', (e) => {
         if (e.key === STORAGE_KEY_POLL1) {
@@ -57,118 +45,119 @@ class RealtimeService {
     }
   }
 
-  // Fetch latest state from cloud for all polls
-  public async fetchCloudHistory() {
-    if (this.isSyncing) return;
-    this.isSyncing = true;
+  // Start P2P WebRTC Host listener for a specific poll on the presenter screen
+  public startHostListener(pollId: string) {
+    if (typeof window === 'undefined') return;
+    if (this.hostPeers.has(pollId)) return;
+
+    const hostId = PEER_HOST_IDS[pollId];
+    if (!hostId) return;
 
     try {
-      await Promise.all(['leadership', 'poll1', 'poll2'].map(async (pollId) => {
-        const containerId = CLOUD_CONTAINERS[pollId];
-        if (!containerId) return;
+      const peer = new Peer(hostId, {
+        debug: 0,
+      });
 
-        try {
-          const res = await fetch(`https://api.restful-api.dev/objects/${containerId}`, {
-            cache: 'no-store',
-          });
-          if (res.ok) {
-            const json = await res.json();
-            if (json && json.data) {
-              const cloudText: TextResponse[] = json.data.textResponses || [];
-              const cloudScale: ScaleResponse[] = json.data.scaleResponses || [];
-              const local = this.getPollState(pollId);
+      peer.on('open', () => {
+        // Host ready
+      });
 
-              // Merge items
-              const textMap = new Map<string, TextResponse>();
-              [...cloudText, ...local.textResponses].forEach((item) => {
-                if (item && item.id && !textMap.has(item.id)) {
-                  textMap.set(item.id, item);
-                }
-              });
+      peer.on('connection', (conn: DataConnection) => {
+        conn.on('data', (data: any) => {
+          if (!data || typeof data !== 'object') return;
 
-              const scaleMap = new Map<string, ScaleResponse>();
-              [...cloudScale, ...local.scaleResponses].forEach((item) => {
-                if (item && item.id && !scaleMap.has(item.id)) {
-                  scaleMap.set(item.id, item);
-                }
-              });
-
-              const merged: PollState = {
-                textResponses: Array.from(textMap.values()).sort((a, b) => b.timestamp - a.timestamp),
-                scaleResponses: Array.from(scaleMap.values()),
-              };
-
-              this.savePollState(pollId, merged);
-              this.notifyListeners(pollId, merged);
-            }
+          if (data.type === 'text' && data.text) {
+            this.addTextVote(pollId, data.text, data.id);
+            try {
+              conn.send({ status: 'ok', id: data.id });
+            } catch (e) {}
+          } else if (data.type === 'scale' && typeof data.value === 'number') {
+            this.addScaleVote(pollId, data.value, data.id);
+            try {
+              conn.send({ status: 'ok', id: data.id });
+            } catch (e) {}
           }
-        } catch (e) {
-          // Ignore individual fetch blips
+        });
+      });
+
+      peer.on('error', (err: any) => {
+        // If ID is taken (another tab already hosting), destroy gracefully
+        if (err.type === 'unavailable-id') {
+          // Already running
         }
-      }));
-    } finally {
-      this.isSyncing = false;
+      });
+
+      this.hostPeers.set(pollId, peer);
+    } catch (e) {
+      console.error('Failed to initialize Peer host', e);
     }
   }
 
-  private async pushPollStateToCloud(pollId: string, state: PollState) {
-    const containerId = CLOUD_CONTAINERS[pollId];
-    if (!containerId) return;
+  // Send vote from mobile phone via P2P WebRTC to presenter host
+  public async sendVoteFromMobile(
+    pollId: string,
+    payload: { type: 'text' | 'scale'; text?: string; value?: number }
+  ): Promise<boolean> {
+    const hostId = PEER_HOST_IDS[pollId];
+    if (!hostId) return false;
 
-    try {
-      let cloudText: TextResponse[] = [];
-      let cloudScale: ScaleResponse[] = [];
-
-      try {
-        const currentRes = await fetch(`https://api.restful-api.dev/objects/${containerId}`, { cache: 'no-store' });
-        if (currentRes.ok) {
-          const json = await currentRes.json();
-          if (json && json.data) {
-            cloudText = json.data.textResponses || [];
-            cloudScale = json.data.scaleResponses || [];
-          }
-        }
-      } catch (e) {}
-
-      const textMap = new Map<string, TextResponse>();
-      [...state.textResponses, ...cloudText].forEach((item) => {
-        if (item && item.id && !textMap.has(item.id)) {
-          textMap.set(item.id, item);
-        }
-      });
-
-      const scaleMap = new Map<string, ScaleResponse>();
-      [...state.scaleResponses, ...cloudScale].forEach((item) => {
-        if (item && item.id && !scaleMap.has(item.id)) {
-          scaleMap.set(item.id, item);
-        }
-      });
-
-      const combinedText = Array.from(textMap.values()).sort((a, b) => b.timestamp - a.timestamp);
-      const combinedScale = Array.from(scaleMap.values());
-
-      await fetch(`https://api.restful-api.dev/objects/${containerId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: `gml_state_${pollId}_v1`,
-          data: {
-            textResponses: combinedText,
-            scaleResponses: combinedScale,
-            lastUpdated: Date.now(),
-          },
-        }),
-      });
-
-      const finalState: PollState = {
-        textResponses: combinedText,
-        scaleResponses: combinedScale,
-      };
-      this.savePollState(pollId, finalState);
-      this.notifyListeners(pollId, finalState);
-    } catch (e) {
-      console.error('Failed to push state to cloud', e);
+    // Save locally on mobile too
+    if (payload.type === 'text' && payload.text) {
+      this.addTextVote(pollId, payload.text);
+    } else if (payload.type === 'scale' && typeof payload.value === 'number') {
+      this.addScaleVote(pollId, payload.value);
     }
+
+    return new Promise((resolve) => {
+      try {
+        if (!this.clientPeer || this.clientPeer.destroyed) {
+          this.clientPeer = new Peer({ debug: 0 });
+        }
+
+        const sendData = () => {
+          if (!this.clientPeer) {
+            resolve(true);
+            return;
+          }
+          const conn = this.clientPeer.connect(hostId, { reliable: true });
+          const timeout = setTimeout(() => {
+            resolve(true);
+          }, 3000);
+
+          conn.on('open', () => {
+            conn.send({
+              ...payload,
+              pollId,
+              id: Math.random().toString(36).substring(2, 9) + Date.now().toString(36),
+              timestamp: Date.now(),
+            });
+            clearTimeout(timeout);
+            setTimeout(() => {
+              conn.close();
+              resolve(true);
+            }, 300);
+          });
+
+          conn.on('error', () => {
+            clearTimeout(timeout);
+            resolve(true);
+          });
+        };
+
+        if (this.clientPeer.open) {
+          sendData();
+        } else {
+          this.clientPeer.on('open', () => {
+            sendData();
+          });
+          this.clientPeer.on('error', () => {
+            resolve(true);
+          });
+        }
+      } catch (e) {
+        resolve(true);
+      }
+    });
   }
 
   private getStorageKey(pollId: string): string {
@@ -192,7 +181,7 @@ class RealtimeService {
       }
     }
 
-    // Default states
+    // Default seed states for workshop
     if (pollId === 'poll1') {
       return {
         scaleResponses: [
@@ -225,7 +214,7 @@ class RealtimeService {
       };
     }
 
-    // Leadership state starts clean
+    // Leadership starts clean (empty)
     return {
       scaleResponses: [],
       textResponses: [],
@@ -242,12 +231,18 @@ class RealtimeService {
     }
   }
 
-  public async addTextVote(pollId: string, text: string) {
+  public addTextVote(pollId: string, text: string, existingId?: string) {
     const trimmed = text.trim();
     if (!trimmed) return;
     const current = this.getPollState(pollId);
+
+    // Prevent duplicates
+    if (existingId && current.textResponses.some((r) => r.id === existingId)) {
+      return;
+    }
+
     const newResponse: TextResponse = {
-      id: Math.random().toString(36).substring(2, 9) + Date.now().toString(36),
+      id: existingId || Math.random().toString(36).substring(2, 9) + Date.now().toString(36),
       text: trimmed,
       timestamp: Date.now(),
     };
@@ -257,16 +252,18 @@ class RealtimeService {
     };
     this.savePollState(pollId, updated);
     this.notifyListeners(pollId, updated);
-
-    // Push directly to cloud container
-    await this.pushPollStateToCloud(pollId, updated);
   }
 
-  public async addScaleVote(pollId: string, value: number) {
+  public addScaleVote(pollId: string, value: number, existingId?: string) {
     const clamped = Math.max(1, Math.min(100, Math.round(value)));
     const current = this.getPollState(pollId);
+
+    if (existingId && current.scaleResponses.some((r) => r.id === existingId)) {
+      return;
+    }
+
     const newResponse: ScaleResponse = {
-      id: Math.random().toString(36).substring(2, 9) + Date.now().toString(36),
+      id: existingId || Math.random().toString(36).substring(2, 9) + Date.now().toString(36),
       value: clamped,
       timestamp: Date.now(),
     };
@@ -276,12 +273,9 @@ class RealtimeService {
     };
     this.savePollState(pollId, updated);
     this.notifyListeners(pollId, updated);
-
-    // Push directly to cloud container
-    await this.pushPollStateToCloud(pollId, updated);
   }
 
-  public async deleteTextVote(pollId: string, id: string) {
+  public deleteTextVote(pollId: string, id: string) {
     const current = this.getPollState(pollId);
     const updated: PollState = {
       ...current,
@@ -289,19 +283,15 @@ class RealtimeService {
     };
     this.savePollState(pollId, updated);
     this.notifyListeners(pollId, updated);
-
-    await this.pushPollStateToCloud(pollId, updated);
   }
 
-  public async resetVotes(pollId: string) {
+  public resetVotes(pollId: string) {
     const emptyState: PollState = {
       textResponses: [],
       scaleResponses: [],
     };
     this.savePollState(pollId, emptyState);
     this.notifyListeners(pollId, emptyState);
-
-    await this.pushPollStateToCloud(pollId, emptyState);
   }
 
   public subscribe(pollId: string, callback: (state: PollState) => void): () => void {
@@ -312,6 +302,9 @@ class RealtimeService {
 
     // Initial state push
     callback(this.getPollState(pollId));
+
+    // Ensure host listener is active
+    this.startHostListener(pollId);
 
     return () => {
       const set = this.listeners.get(pollId);

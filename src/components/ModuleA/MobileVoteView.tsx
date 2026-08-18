@@ -30,7 +30,7 @@ export const MobileVoteView: React.FC = () => {
     const textToSend = textVote.trim();
     setTextVote('');
     setSubmittedText(true);
-    await realtimeService.addTextVote(pollId, textToSend);
+    await realtimeService.sendVoteFromMobile(pollId, { type: 'text', text: textToSend });
     setTimeout(() => {
       setSubmittedText(false);
     }, 4000);
@@ -39,7 +39,7 @@ export const MobileVoteView: React.FC = () => {
   const handleSendScale = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmittedScale(true);
-    await realtimeService.addScaleVote(pollId, scaleVote);
+    await realtimeService.sendVoteFromMobile(pollId, { type: 'scale', value: scaleVote });
   };
 
   const isLeadership = pollId === 'leadership';
