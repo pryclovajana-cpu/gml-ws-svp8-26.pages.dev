@@ -6,7 +6,7 @@ export const Slide01b_Schedule: React.FC = () => {
   const scheduleItems = [
     {
       id: 'sch1',
-      time: '9:00 – 10:00',
+      time: '9:30 – 10:45',
       title: 'První blok',
       subtitle: 'Východiska & Vize ŠVP 8G',
       desc: 'Kontext změn RVP ZV, specifika žáků osmiletého gymnázia, živá reflexe a společná vize.',
@@ -16,7 +16,7 @@ export const Slide01b_Schedule: React.FC = () => {
     },
     {
       id: 'sch2',
-      time: '10:00 – 10:15',
+      time: '10:45 – 11:00',
       title: 'Přestávka',
       subtitle: 'Čas pro wellbeing & kávu',
       desc: 'Prostor pro občerstvení, kávu a neformální rozhovory napříč předmětovými komisemi.',
@@ -26,7 +26,7 @@ export const Slide01b_Schedule: React.FC = () => {
     },
     {
       id: 'sch3',
-      time: '10:15 – 11:30',
+      time: '11:00 – 12:00',
       title: 'Druhý blok',
       subtitle: 'Týmová práce & Akční plán',
       desc: 'Práce v předmětových komisích na klíčových kompetencích, integrace témat, výstupní evaluace.',
@@ -46,7 +46,7 @@ export const Slide01b_Schedule: React.FC = () => {
         <p className="text-xs sm:text-sm text-gray-500 font-medium">
           <EditableText
             id="sch_subtitle"
-            defaultText="Plynulý průběh dopoledne: 9:00 – 11:30 (včetně přestávky na kávu)"
+            defaultText="9:30 – 12:00 včetně přestávky"
           />
         </p>
       </div>
