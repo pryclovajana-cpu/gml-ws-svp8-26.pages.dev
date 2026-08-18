@@ -19,6 +19,7 @@ import { Slide12_BridgeCompetencies } from './Slide12_BridgeCompetencies';
 import { Slide13_TeamActivity } from './Slide13_TeamActivity';
 import { Slide14_SubjectIntegration } from './Slide14_SubjectIntegration';
 import { Slide15b_GeographyPdf } from './Slide15b_GeographyPdf';
+import { Slide15c_CurriculumBridgeChallenge } from './Slide15c_CurriculumBridgeChallenge';
 import { Slide17_LeadershipFeedback } from './Slide17_LeadershipFeedback';
 import { Slide18_ActionPlanMatrix } from './Slide18_ActionPlanMatrix';
 import { Slide19_Poll2Evaluation } from './Slide19_Poll2Evaluation';
@@ -47,8 +48,9 @@ export const SLIDES_REGISTRY: SlideConfig[] = [
   { id: 's13', number: 15, title: 'Klíčové kompetence napříč předměty', chapter: 'Týmová práce', component: Slide13_TeamActivity },
   { id: 's14', number: 16, title: 'Jak smysluplně propojit předměty', chapter: 'Integrace předmětů', component: Slide14_SubjectIntegration },
   { id: 's15b', number: 17, title: 'Kurikulum Geografie: RVP ZV vs. ŠVP 4G', chapter: 'Porovnání kurikula', component: Slide15b_GeographyPdf },
-  { id: 's17', number: 18, title: 'Zpětná vazba pro vedení školy (QR)', chapter: 'Zpětná vazba', component: Slide17_LeadershipFeedback },
-  { id: 's18', number: 19, title: 'Můj osobní akční krok pro září', chapter: 'Akční plán', component: Slide18_ActionPlanMatrix },
-  { id: 's19', number: 20, title: 'Výstupní evaluace (2/2)', chapter: 'Závěr & Evaluace', component: Slide19_Poll2Evaluation },
-  { id: 's20', number: 21, title: 'Závěr a poděkování', chapter: 'Závěr & Evaluace', component: Slide20_Conclusion },
+  { id: 's15c', number: 18, title: 'Výzva: Propojení modelového ŠVP a 4G', chapter: 'Porovnání kurikula', component: Slide15c_CurriculumBridgeChallenge },
+  { id: 's17', number: 19, title: 'Zpětná vazba pro vedení školy (QR)', chapter: 'Zpětná vazba', component: Slide17_LeadershipFeedback },
+  { id: 's18', number: 20, title: 'Můj osobní akční krok pro září', chapter: 'Akční plán', component: Slide18_ActionPlanMatrix },
+  { id: 's19', number: 21, title: 'Výstupní evaluace (2/2)', chapter: 'Závěr & Evaluace', component: Slide19_Poll2Evaluation },
+  { id: 's20', number: 22, title: 'Závěr a poděkování', chapter: 'Závěr & Evaluace', component: Slide20_Conclusion },
 ];
